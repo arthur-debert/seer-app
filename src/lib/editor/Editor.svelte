@@ -3,6 +3,7 @@
 	import { logger, setLogSink, clearLogSink } from '$lib/log';
 	import { Renderer } from '$lib/viewer/renderer';
 	import { initViewportWasm, ViewerState, FramerState } from '$lib/viewer/viewport';
+	import { getTestBridge, emitTestEvent, setTestReady } from '$lib/test-bridge';
 	import type { ViewLayout, Size, Rect } from '$lib/viewer/viewport';
 	import type {
 		AdjustmentInfo,
@@ -370,6 +371,8 @@
 		async function setup(): Promise<void> {
 			// Initialize viewport WASM and renderer (no editor WASM needed on main thread)
 			await Promise.all([initViewportWasm(), renderer.init(canvasEl!)]);
+			emitTestEvent('wasm:loaded');
+			setTestReady('wasm', true);
 
 			const ts = Date.now();
 			const path = imagePath ?? '';
@@ -458,9 +461,14 @@
 						if (adjustments.length > 0 && !selectedId) {
 							selectedId = adjustments[0].id;
 						}
+
+						emitTestEvent('viewer:rendered');
+						setTestReady('viewer', true);
 					}
 
 					applyLayout(viewerState!.layout());
+					emitTestEvent('pipeline:evaluated');
+					setTestReady('pipeline', true);
 
 					// Run segmentation when a segmentation zone exists and class map hasn't been sent yet
 					if (!classMapSent) {
@@ -545,6 +553,7 @@
 		});
 
 		if (import.meta.env.DEV) {
+			getTestBridge();
 			Object.defineProperty(window, '__editorState', {
 				get: () => ({
 					source,

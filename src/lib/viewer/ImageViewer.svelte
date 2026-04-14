@@ -2,6 +2,7 @@
 	import { Renderer } from './renderer';
 	import { initViewportWasm, ViewerState } from './viewport';
 	import type { ViewLayout } from './viewport';
+	import { getTestBridge, emitTestEvent, setTestReady } from '$lib/test-bridge';
 
 	interface Props {
 		imageBytes: ArrayBuffer;
@@ -27,6 +28,8 @@
 
 		async function setup(): Promise<void> {
 			await Promise.all([initViewportWasm(), renderer.init(canvasEl!)]);
+			emitTestEvent('wasm:loaded');
+			setTestReady('wasm', true);
 
 			const dims = await renderer.loadImage(imageBytes);
 			renderer.resize();
@@ -34,10 +37,13 @@
 			viewerState = new ViewerState(dims.width, dims.height, canvasEl!.width, canvasEl!.height);
 
 			if (import.meta.env.DEV) {
+				getTestBridge();
 				(window as unknown as Record<string, unknown>).__viewerState = viewerState;
 			}
 
 			applyLayout(viewerState.layout());
+			emitTestEvent('viewer:rendered');
+			setTestReady('viewer', true);
 		}
 
 		setup().catch((e: unknown) => {

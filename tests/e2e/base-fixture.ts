@@ -4,6 +4,7 @@
  * of '@playwright/test' to get automatic error detection.
  */
 import { test as base, expect } from '@playwright/test';
+import { attachDiagnostics, attachConsoleLogs, attachErrorLogs } from './lib/diagnostics';
 
 /** Patterns for known benign console errors (e.g. ORT WASM warnings). */
 const IGNORED_PATTERNS = [
@@ -24,9 +25,11 @@ export { expect };
 
 export const test = base.extend<{ consoleErrors: string[] }>({
 	consoleErrors: [
-		async ({ page }, use) => {
+		async ({ page }, use, testInfo) => {
 			const errors: string[] = [];
+			const logs: string[] = [];
 			page.on('console', (msg) => {
+				logs.push(`[${msg.type()}] ${msg.text()}`);
 				if (msg.type() === 'error' && !isIgnored(msg.text())) {
 					errors.push(msg.text());
 				}
@@ -37,6 +40,10 @@ export const test = base.extend<{ consoleErrors: string[] }>({
 				}
 			});
 			await use(errors);
+			// Attach diagnostics on failure
+			await attachConsoleLogs(logs, testInfo);
+			await attachErrorLogs(errors, testInfo);
+			await attachDiagnostics(page, testInfo);
 			// Auto-fail if unexpected errors occurred
 			expect(errors).toEqual([]);
 		},
