@@ -3,7 +3,7 @@
 	import { logger, setLogSink, clearLogSink } from '$lib/log';
 	import { Renderer } from '$lib/viewer/renderer';
 	import { initViewportWasm, ViewerState, FramerState } from '$lib/viewer/viewport';
-	import { getTestBridge, emitTestEvent, setTestReady } from '$lib/test-bridge';
+	import { emitTestEvent, setTestReady } from '$lib/test-bridge';
 	import type { ViewLayout, Size, Rect } from '$lib/viewer/viewport';
 	import type {
 		AdjustmentInfo,
@@ -553,7 +553,6 @@
 		});
 
 		if (import.meta.env.DEV) {
-			getTestBridge();
 			Object.defineProperty(window, '__editorState', {
 				get: () => ({
 					source,

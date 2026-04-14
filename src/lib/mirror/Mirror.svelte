@@ -3,7 +3,7 @@
 	import { Renderer } from '$lib/viewer/renderer';
 	import { initViewportWasm, ViewerState } from '$lib/viewer/viewport';
 	import type { ViewLayout } from '$lib/viewer/viewport';
-	import { getTestBridge, emitTestEvent, setTestReady } from '$lib/test-bridge';
+	import { emitTestEvent, setTestReady } from '$lib/test-bridge';
 
 	interface Props {
 		leftImageBytes: ArrayBuffer;
@@ -77,7 +77,6 @@
 			);
 
 			if (import.meta.env.DEV) {
-				getTestBridge();
 				(window as unknown as Record<string, unknown>).__mirrorState = {
 					left: leftState,
 					right: rightState

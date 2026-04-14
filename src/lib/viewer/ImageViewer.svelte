@@ -2,7 +2,7 @@
 	import { Renderer } from './renderer';
 	import { initViewportWasm, ViewerState } from './viewport';
 	import type { ViewLayout } from './viewport';
-	import { getTestBridge, emitTestEvent, setTestReady } from '$lib/test-bridge';
+	import { emitTestEvent, setTestReady } from '$lib/test-bridge';
 
 	interface Props {
 		imageBytes: ArrayBuffer;
@@ -37,7 +37,6 @@
 			viewerState = new ViewerState(dims.width, dims.height, canvasEl!.width, canvasEl!.height);
 
 			if (import.meta.env.DEV) {
-				getTestBridge();
 				(window as unknown as Record<string, unknown>).__viewerState = viewerState;
 			}
 

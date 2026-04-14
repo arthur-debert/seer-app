@@ -70,15 +70,16 @@ export function getTestBridge(): TestBridge | null {
 }
 
 /**
- * Emit a test event. No-op in production.
+ * Emit a test event. No-op in production. Lazily initializes the bridge.
  */
 export function emitTestEvent(type: string, detail?: unknown): void {
-	bridge?.emit(type, detail);
+	getTestBridge()?.emit(type, detail);
 }
 
 /**
- * Update a readiness signal. No-op in production.
+ * Update a readiness signal. No-op in production. Lazily initializes the bridge.
  */
 export function setTestReady(signal: keyof ReadinessSignals, value: boolean): void {
-	if (bridge) bridge.ready[signal] = value;
+	const b = getTestBridge();
+	if (b) b.ready[signal] = value;
 }
