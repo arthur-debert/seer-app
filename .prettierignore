@@ -1,0 +1,13 @@
+# Package
+node_modules
+pnpm-lock.yaml
+
+# Build output
+build/
+.svelte-kit/
+
+# Submodule (Rust code, not formatted by prettier)
+src-tauri/
+
+# WASM generated packages
+src/lib/wasm/

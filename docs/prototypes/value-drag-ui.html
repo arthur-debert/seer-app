@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Precision Input Lab</title>
+		<script src="https://cdn.tailwindcss.com"></script>
+		<link
+			href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap"
+			rel="stylesheet"
+		/>
+		<style>
+			body {
+				font-family: 'Inter', sans-serif;
+				background-color: #0f172a;
+				color: #f1f5f9;
+				user-select: none;
+				overflow-x: hidden;
+			}
+			.widget-card {
+				background: rgba(30, 41, 59, 0.5);
+				border: 1px solid rgba(255, 255, 255, 0.1);
+				backdrop-filter: blur(8px);
+				transition: all 0.3s ease;
+				max-width: 500px;
+				margin: 0 auto;
+				width: 100%;
+			}
+			.widget-card:hover {
+				border-color: rgba(255, 255, 255, 0.2);
+			}
+			.value-display {
+				font-variant-numeric: tabular-nums;
+				transition:
+					color 0.15s ease,
+					text-shadow 0.15s ease;
+			}
+			.scrub-surface {
+				background-image: radial-gradient(circle, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+				background-size: 20px 20px;
+			}
+			.dragging * {
+				cursor: grabbing !important;
+			}
+		</style>
+	</head>
+	<body class="min-h-screen p-4 md:p-8">
+		<div class="mx-auto max-w-6xl">
+			<header class="mb-10 text-center">
+				<h1
+					class="mb-2 bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-3xl font-extrabold tracking-tight text-transparent text-white"
+				>
+					Precision Input Lab
+				</h1>
+				<p class="mx-auto max-w-lg text-sm text-slate-400">
+					Five experimental interaction patterns for micro-precision control. Scroll freely and drag
+					widgets to test.
+				</p>
+			</header>
+
+			<div class="grid grid-cols-1 items-start gap-6 md:grid-cols-2 lg:grid-cols-3">
+				<!-- 1. Y-AXIS ESCAPE -->
+				<div class="widget-card flex flex-col rounded-3xl p-6" id="card-y">
+					<div class="mb-4">
+						<div class="flex items-start justify-between">
+							<h2 class="text-lg leading-tight font-bold text-blue-400">1. Y-Axis "Escape"</h2>
+							<span
+								class="rounded bg-blue-500/10 px-2 py-0.5 text-[9px] font-bold tracking-tighter text-blue-400 uppercase"
+								>iOS Style</span
+							>
+						</div>
+						<p class="mt-1 text-xs text-slate-400">
+							Pull <b>vertically away</b> to decrease sensitivity.
+						</p>
+					</div>
+					<div class="flex flex-grow flex-col items-center justify-center py-6">
+						<div class="value-display mb-6 text-5xl font-black" id="val-y">0.00</div>
+						<div
+							class="relative flex h-10 w-full items-center rounded-full border border-slate-700 bg-slate-800 px-1.5"
+							id="track-y"
+						>
+							<div
+								id="thumb-y"
+								class="flex h-8 w-8 cursor-grab items-center justify-center rounded-full bg-blue-500 shadow-lg active:cursor-grabbing"
+							>
+								<div class="mx-0.5 h-3 w-0.5 rounded-full bg-white/30"></div>
+								<div class="mx-0.5 h-3 w-0.5 rounded-full bg-white/30"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- 2. RADIAL ORBIT -->
+				<div class="widget-card flex flex-col rounded-3xl p-6" id="card-radial">
+					<div class="mb-4">
+						<div class="flex items-start justify-between">
+							<h2 class="text-lg leading-tight font-bold text-indigo-400">2. Radial Orbit</h2>
+							<span
+								class="rounded bg-indigo-500/10 px-2 py-0.5 text-[9px] font-bold tracking-tighter text-indigo-400 uppercase"
+								>Geometric</span
+							>
+						</div>
+						<p class="mt-1 text-xs text-slate-400">Drag <b>further out</b> for micro-control.</p>
+					</div>
+					<div class="flex flex-grow flex-col items-center justify-center py-4">
+						<div class="value-display mb-4 text-5xl font-black text-indigo-50" id="val-radial">
+							0.00
+						</div>
+						<div
+							class="scrub-surface relative flex h-44 w-44 items-center justify-center rounded-full border border-slate-800"
+							id="dial-area"
+						>
+							<div class="absolute h-1.5 w-1.5 rounded-full bg-indigo-500"></div>
+							<svg class="absolute inset-0 h-full w-full -rotate-90">
+								<circle
+									cx="88"
+									cy="88"
+									r="80"
+									fill="none"
+									stroke="rgba(99, 102, 241, 0.1)"
+									stroke-width="1.5"
+								/>
+								<circle
+									id="ring-radial"
+									cx="88"
+									cy="88"
+									r="80"
+									fill="none"
+									stroke="#6366f1"
+									stroke-width="3"
+									stroke-dasharray="502"
+									stroke-dashoffset="251"
+									stroke-linecap="round"
+								/>
+							</svg>
+							<div
+								id="thumb-radial"
+								class="absolute h-7 w-7 cursor-grab rounded-full border border-white bg-indigo-600 shadow-xl"
+							></div>
+						</div>
+					</div>
+				</div>
+
+				<!-- 3. VELOCITY FRICTION -->
+				<div class="widget-card flex flex-col rounded-3xl p-6" id="card-velocity">
+					<div class="mb-4">
+						<div class="flex items-start justify-between">
+							<h2 class="text-lg leading-tight font-bold text-emerald-400">3. Velocity Friction</h2>
+							<span
+								class="rounded bg-emerald-500/10 px-2 py-0.5 text-[9px] font-bold tracking-tighter text-emerald-400 uppercase"
+								>Physics</span
+							>
+						</div>
+						<p class="mt-1 text-xs text-slate-400"><b>Speed</b> determines granularity.</p>
+					</div>
+					<div class="flex flex-grow flex-col items-center justify-center py-6">
+						<div class="value-display mb-6 text-5xl font-black text-emerald-50" id="val-velocity">
+							0.00
+						</div>
+						<div
+							id="pad-velocity"
+							class="group relative flex h-24 w-full cursor-ew-resize items-center justify-center overflow-hidden rounded-2xl border border-slate-700 bg-slate-900"
+						>
+							<div class="text-[9px] font-bold tracking-[0.2em] text-emerald-500/40 uppercase">
+								Scrub Surface
+							</div>
+							<div
+								id="speed-meter"
+								class="absolute bottom-0 left-0 h-1 bg-emerald-500 transition-all duration-100"
+								style="width: 0%"
+							></div>
+						</div>
+					</div>
+				</div>
+
+				<!-- 4. MODIFIER CLUTCH -->
+				<div class="widget-card flex flex-col rounded-3xl p-6" id="card-modifier">
+					<div class="mb-4">
+						<div class="flex items-start justify-between">
+							<h2 class="text-lg leading-tight font-bold text-orange-400">4. Modifier Clutch</h2>
+							<span
+								class="rounded bg-orange-500/10 px-2 py-0.5 text-[9px] font-bold tracking-tighter text-orange-400 uppercase"
+								>Desktop</span
+							>
+						</div>
+						<p class="mt-1 text-xs text-slate-400">Hold <b>Shift</b> to engage 10x precision.</p>
+					</div>
+					<div class="flex flex-grow flex-col items-center justify-center py-6">
+						<div
+							class="value-display mb-6 cursor-ew-resize text-6xl font-black text-orange-50"
+							id="val-modifier"
+						>
+							0.00
+						</div>
+						<div
+							id="clutch-indicator"
+							class="flex items-center rounded-lg border border-slate-700 bg-slate-800 px-4 py-2"
+						>
+							<span id="clutch-label" class="text-[10px] font-bold text-slate-500 uppercase"
+								>Clutch Disengaged</span
+							>
+						</div>
+					</div>
+				</div>
+
+				<!-- 5. HYBRID CHAMELEON (NEW) -->
+				<div
+					class="widget-card col-span-1 flex flex-col rounded-3xl p-6 md:col-span-2 lg:col-span-1"
+					id="card-hybrid"
+				>
+					<div class="mb-4">
+						<div class="flex items-start justify-between">
+							<h2 class="text-lg leading-tight font-bold text-cyan-400">5. Hybrid Chameleon</h2>
+							<span
+								class="rounded bg-cyan-500/10 px-2 py-0.5 text-[9px] font-bold tracking-tighter text-cyan-400 uppercase"
+								>Velocity-Clutch</span
+							>
+						</div>
+						<p class="mt-1 text-xs text-slate-400">
+							Speed is reflected in <b>color</b>. Move slowly to auto-engage precision mode.
+						</p>
+					</div>
+					<div class="flex flex-grow flex-col items-center justify-center py-6">
+						<div class="value-display mb-6 text-6xl font-black text-white" id="val-hybrid">
+							0.00
+						</div>
+						<div
+							id="pad-hybrid"
+							class="group relative flex h-24 w-full cursor-ew-resize items-center justify-center overflow-hidden rounded-2xl border border-slate-700 bg-slate-900 transition-all duration-300"
+						>
+							<div
+								id="hybrid-bg"
+								class="absolute inset-0 bg-cyan-500 opacity-0 transition-opacity group-hover:opacity-10"
+							></div>
+							<div class="z-10 text-[9px] font-bold tracking-[0.2em] text-cyan-500/40 uppercase">
+								Hybrid Surface
+							</div>
+							<div
+								id="hybrid-indicator"
+								class="absolute top-2 right-4 text-[8px] font-bold tracking-widest text-cyan-500/50 uppercase"
+							>
+								Normal
+							</div>
+						</div>
+					</div>
+					<div
+						class="mt-4 rounded-xl border border-slate-800/50 bg-slate-900/50 p-3 text-[11px] text-slate-400"
+					>
+						<strong class="text-slate-200">Logic:</strong> Replaces Shift key with low velocity.
+						<span class="text-cyan-400">Cyan = Fine</span>,
+						<span class="text-white">White = Normal</span>,
+						<span class="text-rose-400">Rose = Coarse</span>.
+					</div>
+				</div>
+			</div>
+			<footer class="mt-12 pb-10 text-center text-[10px] tracking-widest text-slate-600 uppercase">
+				Precision Input Lab &copy; 2024
+			</footer>
+		</div>
+
+		<script>
+			const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+			const MIN = -360;
+			const MAX = 360;
+
+			// --- 1. Y-AXIS LOGIC ---
+			(function () {
+				const thumb = document.getElementById('thumb-y');
+				const track = document.getElementById('track-y');
+				const display = document.getElementById('val-y');
+				let isDragging = false,
+					startX,
+					startY,
+					startVal,
+					currentVal = 0;
+				const update = (e) => {
+					if (!isDragging) return;
+					const cx = e.touches ? e.touches[0].clientX : e.clientX,
+						cy = e.touches ? e.touches[0].clientY : e.clientY;
+					const sensitivity = clamp(1 - Math.abs(cy - startY) / 400, 0.02, 1);
+					currentVal = clamp(startVal + (cx - startX) * sensitivity * 0.5, MIN, MAX);
+					thumb.style.transform = `translateX(${((currentVal - MIN) / (MAX - MIN)) * (track.clientWidth - 44)}px)`;
+					display.innerText = currentVal.toFixed(2);
+					display.style.color = sensitivity < 0.5 ? '#60a5fa' : '#f1f5f9';
+				};
+				const start = (e) => {
+					isDragging = true;
+					startX = e.touches ? e.touches[0].clientX : e.clientX;
+					startY = e.touches ? e.touches[0].clientY : e.clientY;
+					startVal = currentVal;
+					document.body.classList.add('dragging');
+				};
+				thumb.addEventListener('mousedown', start);
+				thumb.addEventListener('touchstart', start, { passive: true });
+				window.addEventListener('mousemove', update);
+				window.addEventListener('touchmove', (e) => isDragging && (e.preventDefault(), update(e)), {
+					passive: false
+				});
+				window.addEventListener('mouseup', () => {
+					isDragging = false;
+					document.body.classList.remove('dragging');
+				});
+			})();
+
+			// --- 2. RADIAL ORBIT ---
+			(function () {
+				const dial = document.getElementById('dial-area'),
+					thumb = document.getElementById('thumb-radial'),
+					display = document.getElementById('val-radial'),
+					ring = document.getElementById('ring-radial');
+				let isDragging = false,
+					currentVal = 0;
+				const update = (e) => {
+					if (!isDragging) return;
+					const cx = e.touches ? e.touches[0].clientX : e.clientX,
+						cy = e.touches ? e.touches[0].clientY : e.clientY,
+						rect = dial.getBoundingClientRect();
+					const dx = cx - (rect.left + rect.width / 2),
+						dy = cy - (rect.top + rect.height / 2),
+						angle = Math.atan2(dy, dx) * (180 / Math.PI);
+					currentVal = clamp((angle / 180) * 360, MIN, MAX);
+					thumb.style.transform = `translate(${Math.cos(angle * (Math.PI / 180)) * clamp(Math.hypot(dx, dy), 50, 140)}px, ${Math.sin(angle * (Math.PI / 180)) * clamp(Math.hypot(dx, dy), 50, 140)}px)`;
+					display.innerText = currentVal.toFixed(2);
+					ring.style.strokeDashoffset = 502 - 502 * ((currentVal + 360) / 720);
+				};
+				dial.addEventListener('mousedown', (e) => {
+					isDragging = true;
+					document.body.classList.add('dragging');
+					update(e);
+				});
+				dial.addEventListener(
+					'touchstart',
+					(e) => {
+						isDragging = true;
+						document.body.classList.add('dragging');
+						update(e);
+					},
+					{ passive: true }
+				);
+				window.addEventListener('mousemove', update);
+				window.addEventListener('touchmove', (e) => isDragging && (e.preventDefault(), update(e)), {
+					passive: false
+				});
+				window.addEventListener('mouseup', () => {
+					isDragging = false;
+					document.body.classList.remove('dragging');
+				});
+				thumb.style.transform = `translate(80px, 0px)`;
+			})();
+
+			// --- 3. VELOCITY FRICTION ---
+			(function () {
+				const pad = document.getElementById('pad-velocity'),
+					display = document.getElementById('val-velocity'),
+					meter = document.getElementById('speed-meter');
+				let isDragging = false,
+					lastX = 0,
+					lastTime = 0,
+					currentVal = 0;
+				const update = (e) => {
+					if (!isDragging) return;
+					const cx = e.touches ? e.touches[0].clientX : e.clientX,
+						ct = performance.now(),
+						dx = cx - lastX,
+						dt = ct - lastTime;
+					if (dt > 0) {
+						const vel = Math.abs(dx / dt) * 1000;
+						let mult = 0.1;
+						if (vel > 100) mult = Math.pow(vel / 100, 1.5) * 0.1;
+						currentVal = clamp(currentVal + dx * mult, MIN, MAX);
+						display.innerText = currentVal.toFixed(2);
+						meter.style.width = `${clamp(vel / 10, 0, 100)}%`;
+					}
+					lastX = cx;
+					lastTime = ct;
+				};
+				pad.addEventListener('mousedown', (e) => {
+					isDragging = true;
+					lastX = e.clientX;
+					lastTime = performance.now();
+					document.body.classList.add('dragging');
+				});
+				pad.addEventListener(
+					'touchstart',
+					(e) => {
+						isDragging = true;
+						lastX = e.touches[0].clientX;
+						lastTime = performance.now();
+						document.body.classList.add('dragging');
+					},
+					{ passive: true }
+				);
+				window.addEventListener('mousemove', update);
+				window.addEventListener('touchmove', (e) => isDragging && (e.preventDefault(), update(e)), {
+					passive: false
+				});
+				window.addEventListener('mouseup', () => {
+					isDragging = false;
+					meter.style.width = '0%';
+					document.body.classList.remove('dragging');
+				});
+			})();
+
+			// --- 4. MODIFIER CLUTCH ---
+			(function () {
+				const display = document.getElementById('val-modifier'),
+					label = document.getElementById('clutch-label');
+				let isDragging = false,
+					lastX = 0,
+					currentVal = 0;
+				const update = (e) => {
+					if (!isDragging) return;
+					const cx = e.touches ? e.touches[0].clientX : e.clientX,
+						mult = e.shiftKey ? 0.05 : 0.5;
+					currentVal = clamp(currentVal + (cx - lastX) * mult, MIN, MAX);
+					display.innerText = currentVal.toFixed(2);
+					lastX = cx;
+					label.innerText = e.shiftKey ? 'Clutch Engaged (0.1x)' : 'Clutch Disengaged';
+					label.classList.toggle('text-orange-400', e.shiftKey);
+				};
+				display.addEventListener('mousedown', (e) => {
+					isDragging = true;
+					lastX = e.clientX;
+					document.body.classList.add('dragging');
+				});
+				display.addEventListener(
+					'touchstart',
+					(e) => {
+						isDragging = true;
+						lastX = e.touches[0].clientX;
+						document.body.classList.add('dragging');
+					},
+					{ passive: true }
+				);
+				window.addEventListener('mousemove', update);
+				window.addEventListener('touchmove', (e) => isDragging && (e.preventDefault(), update(e)), {
+					passive: false
+				});
+				window.addEventListener('mouseup', () => {
+					isDragging = false;
+					document.body.classList.remove('dragging');
+				});
+			})();
+
+			// --- 5. HYBRID CHAMELEON (NEW LOGIC) ---
+			(function () {
+				const pad = document.getElementById('pad-hybrid');
+				const display = document.getElementById('val-hybrid');
+				const indicator = document.getElementById('hybrid-indicator');
+				const bg = document.getElementById('hybrid-bg');
+
+				let isDragging = false,
+					lastX = 0,
+					lastTime = 0,
+					currentVal = 0;
+
+				const update = (e) => {
+					if (!isDragging) return;
+					const cx = e.touches ? e.touches[0].clientX : e.clientX,
+						ct = performance.now();
+					const dx = cx - lastX,
+						dt = ct - lastTime;
+
+					if (dt > 0) {
+						const vel = Math.abs(dx / dt) * 1000;
+						let mult = 0.5; // Standard
+						let color = '#f1f5f9'; // White
+						let glow = 'none';
+						let mode = 'Normal';
+
+						if (vel < 60) {
+							// ULTRA PRECISION (The "Low Velocity Clutch")
+							mult = 0.02;
+							color = '#22d3ee'; // Cyan
+							glow = '0 0 15px rgba(34, 211, 238, 0.5)';
+							mode = 'Precision';
+						} else if (vel > 400) {
+							// COARSE SPEED
+							mult = Math.pow(vel / 200, 1.8) * 0.1;
+							color = '#fb7185'; // Rose
+							glow = '0 0 20px rgba(251, 113, 133, 0.5)';
+							mode = 'High Speed';
+						}
+
+						currentVal = clamp(currentVal + dx * mult, MIN, MAX);
+						display.innerText = currentVal.toFixed(2);
+						display.style.color = color;
+						display.style.textShadow = glow;
+						indicator.innerText = mode;
+						indicator.style.color = color;
+						bg.style.backgroundColor = color;
+						bg.style.opacity = clamp(vel / 1000, 0.05, 0.25);
+					}
+					lastX = cx;
+					lastTime = ct;
+				};
+
+				pad.addEventListener('mousedown', (e) => {
+					isDragging = true;
+					lastX = e.clientX;
+					lastTime = performance.now();
+					document.body.classList.add('dragging');
+				});
+				pad.addEventListener(
+					'touchstart',
+					(e) => {
+						isDragging = true;
+						lastX = e.touches[0].clientX;
+						lastTime = performance.now();
+						document.body.classList.add('dragging');
+					},
+					{ passive: true }
+				);
+				window.addEventListener('mousemove', update);
+				window.addEventListener('touchmove', (e) => isDragging && (e.preventDefault(), update(e)), {
+					passive: false
+				});
+				window.addEventListener('mouseup', () => {
+					isDragging = false;
+					display.style.color = '#f1f5f9';
+					display.style.textShadow = 'none';
+					indicator.innerText = 'Normal';
+					bg.style.opacity = '0';
+					document.body.classList.remove('dragging');
+				});
+			})();
+		</script>
+	</body>
+</html>

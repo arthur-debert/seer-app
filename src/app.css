@@ -1,0 +1,182 @@
+@import 'tailwindcss';
+
+/*
+ * Seer Design Tokens
+ *
+ * Semantic color tokens for the entire UI. Components reference these via
+ * Tailwind utilities (e.g. bg-surface-0, text-muted, border-border).
+ *
+ * Light/dark mode is automatic via prefers-color-scheme.
+ */
+
+@theme {
+	/* Surface layers (background hierarchy) */
+	--color-surface-0: var(--surface-0);
+	--color-surface-1: var(--surface-1);
+	--color-surface-2: var(--surface-2);
+	--color-surface-header: var(--surface-header);
+
+	/* Text hierarchy */
+	--color-text-primary: var(--text-primary);
+	--color-text-secondary: var(--text-secondary);
+	--color-text-muted: var(--text-muted);
+	--color-text-faint: var(--text-faint);
+
+	/* Border */
+	--color-border: var(--border-color);
+	--color-border-strong: var(--border-strong);
+
+	/* Interactive */
+	--color-accent: var(--accent);
+	--color-accent-muted: var(--accent-muted);
+	--color-accent-strong: var(--accent-strong);
+
+	/* Semantic */
+	--color-danger: var(--danger);
+	--color-success: var(--success);
+	--color-success-muted: var(--success-muted);
+	--color-warning: var(--warning);
+	--color-warning-muted: var(--warning-muted);
+
+	/* Selection */
+	--color-selected: var(--selected);
+	--color-selected-text: var(--selected-text);
+	--color-selected-alt: var(--selected-alt);
+	--color-selected-alt-text: var(--selected-alt-text);
+
+	/* Drop indicator */
+	--color-drop: var(--drop-color);
+
+	/* Glass surfaces */
+	--color-glass-bg: var(--glass-bg);
+	--color-glass-border: var(--glass-border);
+
+	/* Card */
+	--color-card-bg: var(--card-bg);
+	--color-card-border: var(--card-border);
+
+	/* Typography sizes (used as font-size via text-[length:...]) */
+	--text-caption: 10px;
+	--text-label: 13px;
+	--text-micro: 8px;
+	--text-body: 12px;
+
+	/* Phase colors (pipeline stages) */
+	--color-phase-source: var(--phase-source);
+	--color-phase-geometry: var(--phase-geometry);
+	--color-phase-zones: var(--phase-zones);
+	--color-phase-adjustments: var(--phase-adjustments);
+	--color-phase-output: var(--phase-output);
+
+	/* Channel colors (curve editor) */
+	--color-channel-red: var(--channel-red);
+	--color-channel-green: var(--channel-green);
+	--color-channel-blue: var(--channel-blue);
+}
+
+:root {
+	/* Dark theme (default) */
+	--surface-0: #0a0a0a;
+	--surface-1: #171717;
+	--surface-2: #262626;
+	--surface-header: rgba(38, 38, 38, 0.5);
+
+	--text-primary: #f5f5f5;
+	--text-secondary: #d4d4d4;
+	--text-muted: #a3a3a3;
+	--text-faint: #525252;
+
+	--border-color: #262626;
+	--border-strong: #404040;
+
+	--accent: #60a5fa;
+	--accent-muted: rgba(30, 58, 138, 0.4);
+	--accent-strong: #334155;
+
+	--danger: #ef4444;
+	--success: #4ade80;
+	--success-muted: rgba(20, 83, 45, 0.3);
+	--warning: #fbbf24;
+	--warning-muted: rgba(120, 53, 15, 0.5);
+
+	--selected: #404040;
+	--selected-text: #f5f5f5;
+	--selected-alt: rgba(30, 58, 138, 0.4);
+	--selected-alt-text: #93c5fd;
+
+	--drop-color: #3b82f6;
+
+	/* Glass surfaces */
+	--glass-bg: rgba(23, 23, 23, 0.7);
+	--glass-border: rgba(64, 64, 64, 0.5);
+
+	/* Card */
+	--card-bg: #171717;
+	--card-border: rgba(64, 64, 64, 0.3);
+
+	/* Phase colors */
+	--phase-source: #6366f1;
+	--phase-geometry: #8b5cf6;
+	--phase-zones: #06b6d4;
+	--phase-adjustments: #f59e0b;
+	--phase-output: #10b981;
+
+	/* Channel colors */
+	--channel-red: #ef4444;
+	--channel-green: #22c55e;
+	--channel-blue: #3b82f6;
+}
+
+@media (prefers-color-scheme: light) {
+	:root {
+		--surface-0: #ffffff;
+		--surface-1: #f5f5f5;
+		--surface-2: #e5e5e5;
+		--surface-header: rgba(255, 255, 255, 0.6);
+
+		--text-primary: #171717;
+		--text-secondary: #404040;
+		--text-muted: #737373;
+		--text-faint: #a3a3a3;
+
+		--border-color: rgba(0, 0, 0, 0.1);
+		--border-strong: rgba(0, 0, 0, 0.15);
+
+		--accent: #2563eb;
+		--accent-muted: rgba(219, 234, 254, 0.6);
+		--accent-strong: #dbeafe;
+
+		--danger: #dc2626;
+		--success: #16a34a;
+		--success-muted: rgba(220, 252, 231, 0.6);
+		--warning: #d97706;
+		--warning-muted: rgba(254, 243, 199, 0.6);
+
+		--selected: #e5e5e5;
+		--selected-text: #171717;
+		--selected-alt: rgba(219, 234, 254, 0.6);
+		--selected-alt-text: #1d4ed8;
+
+		--drop-color: #3b82f6;
+
+		/* Glass surfaces */
+		--glass-bg: rgba(255, 255, 255, 0.7);
+		--glass-border: rgba(212, 212, 212, 0.5);
+
+		/* Card */
+		--card-bg: rgba(255, 255, 255, 0.8);
+		--card-border: rgba(0, 0, 0, 0.05);
+
+		/* Phase colors (same hues, adjusted for light bg) */
+		--phase-source: #4f46e5;
+		--phase-geometry: #7c3aed;
+		--phase-zones: #0891b2;
+		--phase-adjustments: #d97706;
+		--phase-output: #059669;
+
+		/* Channel colors (same hues, slightly darker for contrast) */
+		--channel-red: #dc2626;
+		--channel-green: #16a34a;
+		--channel-blue: #2563eb;
+	}
+}

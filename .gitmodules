@@ -1,0 +1,3 @@
+[submodule "src-tauri"]
+	path = src-tauri
+	url = https://github.com/arthur-debert/seer-core.git

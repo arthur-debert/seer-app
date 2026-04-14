@@ -1,0 +1,9 @@
+{
+	"extends": "./.svelte-kit/tsconfig.json",
+	"compilerOptions": {
+		"verbatimModuleSyntax": true,
+		"isolatedModules": true,
+		"types": ["@webgpu/types"],
+		"skipLibCheck": true
+	}
+}

@@ -1,0 +1,25 @@
+pre-commit:
+  commands:
+    # --- Auto-fix phase (priority 1, runs first, re-stages fixes) ---
+    prettier:
+      glob: '*.{ts,tsx,jsx,svelte,js,json,css,html,md}'
+      run: pnpm prettier --write {staged_files}
+      stage_fixed: true
+      priority: 1
+
+    eslint:
+      glob: '*.{ts,tsx,jsx,svelte,js}'
+      run: pnpm eslint --no-warn-ignored --fix {staged_files}
+      stage_fixed: true
+      priority: 1
+
+    # --- Check phase (priority 2, runs after fixes are staged) ---
+    frontend:
+      run: bash scripts/hook-wrapper.sh "frontend" bash scripts/check-frontend.sh
+      priority: 2
+
+    # --- E2E phase (priority 3, runs last) ---
+    e2e:
+      glob: '{src,tests}/**/*.{ts,tsx,svelte,js}'
+      run: bash scripts/hook-wrapper.sh "e2e" npx playwright test
+      priority: 3
