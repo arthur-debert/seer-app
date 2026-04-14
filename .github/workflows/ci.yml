@@ -87,6 +87,8 @@ jobs:
 
       - name: Fetch WASM
         run: pnpm fetch:wasm
+        env:
+          GH_TOKEN: ${{ secrets.SUBMODULE_TOKEN }}
 
       - name: Run E2E tests
         run: xvfb-run --auto-servernum npx playwright test
