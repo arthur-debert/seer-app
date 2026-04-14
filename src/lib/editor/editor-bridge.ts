@@ -76,7 +76,7 @@ declare module '$editor_wasm/seer_editor_wasm.js' {
 //
 // Read-only mirrors of seer_editor version_tree types. The canonical definitions
 // and all recording/coalescing logic live in Rust.
-// See: src-tauri/seer-editor/src/versioning/version_tree.rs
+// See: seer-core/seer-editor/src/versioning/version_tree.rs
 
 export interface VersionNode {
 	id: string;

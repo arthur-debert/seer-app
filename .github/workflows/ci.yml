@@ -11,9 +11,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-        with:
-          submodules: true
-          token: ${{ secrets.SUBMODULE_TOKEN }}
 
       - uses: pnpm/action-setup@v5
 
@@ -30,17 +27,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-        with:
-          submodules: true
-          token: ${{ secrets.SUBMODULE_TOKEN }}
-
-      - uses: dtolnay/rust-toolchain@stable
-
-      - uses: jetli/wasm-pack-action@v0.4.0
-
-      - uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: src-tauri
 
       - uses: pnpm/action-setup@v5
 
@@ -67,3 +53,5 @@ jobs:
         run: npx playwright install-deps chromium
 
       - run: bash scripts/check-frontend.sh
+        env:
+          GH_TOKEN: ${{ secrets.SUBMODULE_TOKEN }}

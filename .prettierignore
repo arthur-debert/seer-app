@@ -6,8 +6,8 @@ pnpm-lock.yaml
 build/
 .svelte-kit/
 
-# Submodule (Rust code, not formatted by prettier)
-src-tauri/
+# WASM packages (fetched, not formatted)
+wasm/
 
 # WASM generated packages
 src/lib/wasm/
