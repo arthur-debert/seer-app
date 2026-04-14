@@ -1,6 +1,17 @@
+# Pre-commit hooks — ordered by priority (lower number runs first).
+# If a priority group fails, later groups are skipped.
+#
+#   1 — Auto-fix:  prettier & eslint with --write/--fix, auto-stage results
+#   2 — Build:     WASM compilation (prerequisite for type checking)
+#   3 — Check:     svelte-check & vitest (parallel, independent)
+#   4 — E2E:       Playwright (slow — only runs if everything above passes)
+#
+# CI runs the same checks via scripts/check-format-all.sh and
+# scripts/check-frontend.sh. Keep them in sync when adding checks.
+
 pre-commit:
   commands:
-    # --- Auto-fix phase (priority 1, runs first, re-stages fixes) ---
+    # --- Phase 1: Auto-fix (format & lint) ---
     prettier:
       glob: '*.{ts,tsx,jsx,svelte,js,json,css,html,md}'
       run: pnpm prettier --write {staged_files}
@@ -13,13 +24,26 @@ pre-commit:
       stage_fixed: true
       priority: 1
 
-    # --- Check phase (priority 2, runs after fixes are staged) ---
-    frontend:
-      run: bash scripts/hook-wrapper.sh "frontend" bash scripts/check-frontend.sh
+    # --- Phase 2: Build WASM (svelte-check imports from WASM packages) ---
+    wasm-build:
+      run: bash scripts/hook-wrapper.sh wasm-build pnpm build:all-wasm
       priority: 2
 
-    # --- E2E phase (priority 3, runs last) ---
+    # --- Phase 3: Type checking & unit tests (parallel) ---
+    svelte-check:
+      run: bash scripts/hook-wrapper.sh svelte-check bash -c 'pnpm svelte-kit sync && pnpm svelte-check --tsconfig ./tsconfig.json --threshold warning'
+      priority: 3
+
+    vitest:
+      run: bash scripts/hook-wrapper.sh vitest pnpm vitest run --passWithNoTests
+      priority: 3
+
+    # --- Phase 4: E2E (slow, runs last) ---
     e2e:
       glob: '{src,tests}/**/*.{ts,tsx,svelte,js}'
-      run: bash scripts/hook-wrapper.sh "e2e" npx playwright test
-      priority: 3
+      run: |
+        echo ""
+        echo "  Running E2E tests (slow — check results above for faster feedback)"
+        echo ""
+        bash scripts/hook-wrapper.sh e2e npx playwright test
+      priority: 4
