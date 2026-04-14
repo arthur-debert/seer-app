@@ -9,8 +9,8 @@ const config = {
 			fallback: 'index.html'
 		}),
 		alias: {
-			$viewer_wasm: 'src-tauri/seer-viewer-wasm/pkg',
-			$editor_wasm: 'src-tauri/seer-editor-wasm/pkg'
+			$viewer_wasm: 'wasm/seer-viewer-wasm/pkg',
+			$editor_wasm: 'wasm/seer-editor-wasm/pkg'
 		}
 	}
 };

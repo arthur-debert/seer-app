@@ -28,7 +28,7 @@ export default ts.config(
 			'build/',
 			'.svelte-kit/',
 			'node_modules/',
-			'src-tauri/',
+			'wasm/',
 			'static/ort-wasm/',
 			'src/lib/wasm/',
 			'docs/prototypes/'

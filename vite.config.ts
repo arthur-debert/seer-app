@@ -95,8 +95,7 @@ export default defineConfig({
 				}
 			: undefined,
 		watch: {
-			// Tell vite to ignore watching `src-tauri`
-			ignored: ['**/src-tauri/**']
+			ignored: ['**/wasm/**']
 		},
 		fs: {
 			// Allow serving files from the parent directory (e.g. temp-images/) in dev mode

@@ -2,13 +2,8 @@ node_modules/
 build/
 .svelte-kit/
 
-# WASM build output (built from submodule)
-src-tauri/seer-viewer-wasm/pkg/
-src-tauri/seer-editor-wasm/pkg/
-
-# Rust build artifacts (inside submodule)
-src-tauri/target/
-src-tauri/gen/
+# WASM packages (fetched by scripts/fetch-wasm.sh)
+wasm/
 
 # Playwright
 test-results/

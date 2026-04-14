@@ -2,11 +2,10 @@
 
 ## What This Repo Is
 
-SvelteKit frontend for the Seer image editor. Consumes WASM packages from
-[seer-core](https://github.com/arthur-debert/seer-core) via a git submodule at `src-tauri/`.
+SvelteKit frontend for the Seer image editor. Consumes pre-built WASM packages from
+[seer-core](https://github.com/arthur-debert/seer-core) releases.
 
 **Stack:** Svelte 5, TypeScript, Tailwind CSS, Vite, Playwright
-**Desktop:** Tauri v2 (Rust shell lives in the submodule)
 
 ## Design Principles
 
@@ -14,19 +13,18 @@ SvelteKit frontend for the Seer image editor. Consumes WASM packages from
 - All math in Rust (via WASM); TypeScript is thin UI glue
 - Top-left origin, +X right, +Y down
 
-## Submodule Workflow
+## WASM Dependency
+
+WASM version is pinned in `wasm.config.json`. Packages are fetched automatically
+by `scripts/fetch-wasm.sh` (called via `pnpm fetch:wasm`, runs before dev/build).
 
 ```bash
-# First clone
-git clone --recurse-submodules https://github.com/arthur-debert/seer-app.git
+# Update to a new seer-core release
+# Edit wasm.config.json → set "version" to the new tag
+pnpm fetch:wasm
 
-# Update submodule to latest seer-core
-git submodule update --remote src-tauri
-git add src-tauri && git commit -m "chore: update seer-core submodule"
-
-# Local dev with seer-core changes (build WASM from submodule)
-cd src-tauri && wasm-pack build seer-editor-wasm --target web --out-dir pkg
-cd src-tauri && wasm-pack build seer-viewer-wasm --target web --out-dir pkg --no-typescript
+# Local dev against a local seer-core checkout
+SEER_WASM_PATH=../seer-core pnpm dev
 ```
 
 ## Branching
@@ -77,7 +75,7 @@ When reviewing code (as reviewer or self-check):
 ## Allowed Commands in CI
 
 - `git`, `gh`, standard POSIX tools
-- `pnpm`, `npx`, `wasm-pack`
+- `pnpm`, `npx`
 - Test runners and linters listed above
 
 Do NOT run: `rm -rf`, `curl` to external URLs not in the project, `docker` commands.

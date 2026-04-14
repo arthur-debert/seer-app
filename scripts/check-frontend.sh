@@ -3,11 +3,8 @@ set -euo pipefail
 
 cd "$(git rev-parse --show-toplevel)"
 
-echo "=== build:wasm ==="
-pnpm build:wasm
-
-echo "=== build:editor-wasm ==="
-pnpm build:editor-wasm
+echo "=== fetch:wasm ==="
+pnpm fetch:wasm
 
 echo "=== svelte-check ==="
 pnpm svelte-kit sync && pnpm svelte-check --tsconfig ./tsconfig.json --threshold warning

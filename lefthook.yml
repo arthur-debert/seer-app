@@ -24,9 +24,9 @@ pre-commit:
       stage_fixed: true
       priority: 1
 
-    # --- Phase 2: Build WASM (svelte-check imports from WASM packages) ---
-    wasm-build:
-      run: bash scripts/hook-wrapper.sh wasm-build pnpm build:all-wasm
+    # --- Phase 2: Fetch WASM (svelte-check imports from WASM packages) ---
+    wasm-fetch:
+      run: bash scripts/hook-wrapper.sh wasm-fetch pnpm fetch:wasm
       priority: 2
 
     # --- Phase 3: Type checking & unit tests (parallel) ---
