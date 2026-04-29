@@ -4,13 +4,11 @@
  */
 import { test as base, expect } from './base-fixture';
 import type { Page } from '@playwright/test';
+import type { ViewLayout } from './lib/types';
+import { Poll, Timeouts } from './lib/timeouts';
+import { requireBox } from './lib/helpers';
 
 export { expect };
-
-interface ViewLayout {
-	uv_offset: [number, number];
-	uv_scale: [number, number];
-}
 
 class MirrorHarness {
 	constructor(private page: Page) {}
@@ -51,12 +49,12 @@ class MirrorHarness {
 				() => !!(window as unknown as Record<string, unknown>).__mirrorState
 			);
 			expect(hasState).toBe(true);
-		}).toPass({ timeout: 15_000, intervals: [500] });
+		}).toPass(Poll.pipeline);
 	}
 
 	async expectBothCanvasesVisible(): Promise<void> {
 		const canvases = this.page.locator('canvas');
-		await expect(canvases).toHaveCount(2, { timeout: 15_000 });
+		await expect(canvases).toHaveCount(2, { timeout: Timeouts.pipeline });
 		for (const canvas of await canvases.all()) {
 			await expect(canvas).toBeVisible();
 			const box = await canvas.boundingBox();
@@ -67,23 +65,23 @@ class MirrorHarness {
 	}
 
 	async expectCanvasesSetup(): Promise<void> {
-		// Wait for renderer.resize() to fire (replaces default 300px width)
+		// Wait for renderer.resize() to fire — default Playwright canvas width is 300px
 		await this.page.waitForFunction(
 			() => {
 				const c = document.querySelector('canvas');
-				return c && c.width !== 300;
+				return c && c.width !== 300; // 300 = default HTML canvas width before resize
 			},
 			null,
-			{ timeout: 15_000 }
+			{ timeout: Timeouts.pipeline }
 		);
 	}
 
 	async expectSideBySideLayout(): Promise<void> {
 		const canvases = this.page.locator('canvas');
-		await expect(canvases).toHaveCount(2, { timeout: 15_000 });
+		await expect(canvases).toHaveCount(2, { timeout: Timeouts.pipeline });
 		const [left, right] = await canvases.all();
-		const leftBox = (await left.boundingBox())!;
-		const rightBox = (await right.boundingBox())!;
+		const leftBox = await requireBox(left, 'left mirror canvas');
+		const rightBox = await requireBox(right, 'right mirror canvas');
 		expect(leftBox.x).toBeLessThan(rightBox.x);
 
 		const viewport = this.page.viewportSize()!;
@@ -99,7 +97,7 @@ class MirrorHarness {
 			const leftZoom = await this.getZoomLevel('left');
 			const rightZoom = await this.getZoomLevel('right');
 			expect(leftZoom).toBeCloseTo(rightZoom, 3);
-		}).toPass({ timeout: 5_000, intervals: [200] });
+		}).toPass(Poll.fast);
 	}
 }
 

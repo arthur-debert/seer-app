@@ -8,48 +8,13 @@
  * within acceptable tolerances.
  */
 import { test, expect } from './editor-fixture';
-
-// Helper: parse a CSS px value to a number
-function px(v: string): number {
-	return parseFloat(v.replace('px', ''));
-}
-
-// Helper: extract computed style properties from an element
-async function getStyles(
-	page: import('@playwright/test').Page,
-	selector: string,
-	props: string[]
-): Promise<Record<string, string>> {
-	return page.evaluate(
-		({ sel, properties }) => {
-			const el = document.querySelector(sel);
-			if (!el) throw new Error(`Element not found: ${sel}`);
-			const cs = getComputedStyle(el);
-			const result: Record<string, string> = {};
-			for (const p of properties) {
-				result[p] = cs.getPropertyValue(p);
-			}
-			return result;
-		},
-		{ sel: selector, properties: props }
-	);
-}
-
-// Helper: get bounding box dimensions
-async function getBox(page: import('@playwright/test').Page, selector: string) {
-	return page.evaluate((sel) => {
-		const el = document.querySelector(sel);
-		if (!el) throw new Error(`Element not found: ${sel}`);
-		const r = el.getBoundingClientRect();
-		return { width: r.width, height: r.height, top: r.top, left: r.left };
-	}, selector);
-}
+import { px, getComputedStyles, getBoxBySelector } from './lib/helpers';
 
 test.describe('Visual fidelity: Sidebar layout', () => {
 	test('sidebar width is 192px (w-48)', async ({ editor, page }) => {
 		// Wait for editor state
 		await editor.expectPipelineReady();
-		const box = await getBox(page, '[data-testid="pipeline-sidebar"]');
+		const box = await getBoxBySelector(page, '[data-testid="pipeline-sidebar"]');
 		expect(box.width).toBeCloseTo(192, 0);
 	});
 });
@@ -57,13 +22,13 @@ test.describe('Visual fidelity: Sidebar layout', () => {
 test.describe('Visual fidelity: NodePanel', () => {
 	test('node card has no border-radius (flush cards)', async ({ editor, page }) => {
 		await editor.addAdjustment('seer.white-balance');
-		const styles = await getStyles(page, '[data-testid="node-panel"]', ['border-radius']);
+		const styles = await getComputedStyles(page, '[data-testid="node-panel"]', ['border-radius']);
 		expect(px(styles['border-radius'])).toBe(0);
 	});
 
 	test('node header padding matches prototype (py-2.5 = 10px)', async ({ editor, page }) => {
 		await editor.addAdjustment('seer.white-balance');
-		const styles = await getStyles(page, '[data-testid="node-header"]', [
+		const styles = await getComputedStyles(page, '[data-testid="node-header"]', [
 			'padding-top',
 			'padding-bottom',
 			'padding-left',
@@ -77,7 +42,7 @@ test.describe('Visual fidelity: NodePanel', () => {
 
 	test('node header has bottom border', async ({ editor, page }) => {
 		await editor.addAdjustment('seer.white-balance');
-		const styles = await getStyles(page, '[data-testid="node-header"]', [
+		const styles = await getComputedStyles(page, '[data-testid="node-header"]', [
 			'border-bottom-width',
 			'border-bottom-style'
 		]);
@@ -87,7 +52,7 @@ test.describe('Visual fidelity: NodePanel', () => {
 
 	test('node content has padding and gap matching prototype', async ({ editor, page }) => {
 		await editor.addAdjustment('seer.white-balance');
-		const styles = await getStyles(page, '[data-testid="node-content"]', [
+		const styles = await getComputedStyles(page, '[data-testid="node-content"]', [
 			'padding-top',
 			'padding-bottom',
 			'padding-left',
@@ -103,7 +68,7 @@ test.describe('Visual fidelity: NodePanel', () => {
 
 	test('node icon is 12px', async ({ editor, page }) => {
 		await editor.addAdjustment('seer.white-balance');
-		const box = await getBox(page, '[data-testid="node-icon"]');
+		const box = await getBoxBySelector(page, '[data-testid="node-icon"]');
 		expect(box.width).toBeCloseTo(12, 0);
 		expect(box.height).toBeCloseTo(12, 0);
 	});
@@ -117,17 +82,15 @@ test.describe('Visual fidelity: NodePanel', () => {
 		expect(count).toBeGreaterThanOrEqual(1);
 		const box = await tabSvg.first().boundingBox();
 		expect(box).toBeTruthy();
-		if (box) {
-			expect(box.width).toBeCloseTo(12, 0);
-			expect(box.height).toBeCloseTo(7, 0);
-		}
+		expect(box!.width).toBeCloseTo(12, 0);
+		expect(box!.height).toBeCloseTo(7, 0);
 	});
 });
 
 test.describe('Visual fidelity: PhaseGroup', () => {
 	test('phase header has py-4 (16px) vertical padding', async ({ editor, page }) => {
 		await editor.expectPipelineReady();
-		const styles = await getStyles(page, '[data-testid="phase-header"]', [
+		const styles = await getComputedStyles(page, '[data-testid="phase-header"]', [
 			'padding-top',
 			'padding-bottom'
 		]);
@@ -146,13 +109,13 @@ test.describe('Visual fidelity: PhaseGroup', () => {
 test.describe('Visual fidelity: Slider', () => {
 	test('slider value text is 9px', async ({ editor, page }) => {
 		await editor.addAdjustment('seer.white-balance');
-		const styles = await getStyles(page, '[data-testid="slider-value"]', ['font-size']);
+		const styles = await getComputedStyles(page, '[data-testid="slider-value"]', ['font-size']);
 		expect(px(styles['font-size'])).toBeCloseTo(9, 0);
 	});
 
 	test('slider track is 6px tall (h-1.5)', async ({ editor, page }) => {
 		await editor.addAdjustment('seer.white-balance');
-		const box = await getBox(page, '[data-testid="slider-track"]');
+		const box = await getBoxBySelector(page, '[data-testid="slider-track"]');
 		expect(box.height).toBeCloseTo(6, 0);
 	});
 });
@@ -166,10 +129,8 @@ test.describe('Visual fidelity: Toggle', () => {
 		const track = toggle.locator('div.rounded-full').first();
 		const box = await track.boundingBox();
 		expect(box).toBeTruthy();
-		if (box) {
-			expect(box.width).toBeCloseTo(24, 0);
-			expect(box.height).toBeCloseTo(12, 0);
-		}
+		expect(box!.width).toBeCloseTo(24, 0);
+		expect(box!.height).toBeCloseTo(12, 0);
 	});
 });
 
@@ -184,10 +145,8 @@ test.describe('Visual fidelity: MainToolbar', () => {
 		expect(count).toBeGreaterThanOrEqual(2);
 		const box = await buttons.first().boundingBox();
 		expect(box).toBeTruthy();
-		if (box) {
-			expect(box.width).toBeCloseTo(32, 1);
-			expect(box.height).toBeCloseTo(32, 1);
-		}
+		expect(box!.width).toBeCloseTo(32, 1);
+		expect(box!.height).toBeCloseTo(32, 1);
 	});
 });
 
@@ -199,9 +158,7 @@ test.describe('Visual fidelity: ViewSettingsToolbar', () => {
 		const btn = toolbar.locator('button').first();
 		const box = await btn.boundingBox();
 		expect(box).toBeTruthy();
-		if (box) {
-			expect(box.width).toBeCloseTo(32, 1);
-			expect(box.height).toBeCloseTo(32, 1);
-		}
+		expect(box!.width).toBeCloseTo(32, 1);
+		expect(box!.height).toBeCloseTo(32, 1);
 	});
 });

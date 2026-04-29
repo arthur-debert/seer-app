@@ -4,18 +4,11 @@
  */
 import { test as base, expect } from './base-fixture';
 import type { Page } from '@playwright/test';
+import type { ViewLayout, VisibleRect } from './lib/types';
+import { Poll, Timeouts } from './lib/timeouts';
+import { requireBox } from './lib/helpers';
 
 export { expect };
-
-interface ViewLayout {
-	uv_offset: [number, number];
-	uv_scale: [number, number];
-}
-
-interface VisibleRect {
-	origin: { x: number; y: number };
-	size: { width: number; height: number };
-}
 
 class ViewerHarness {
 	constructor(private page: Page) {}
@@ -75,7 +68,7 @@ class ViewerHarness {
 	}
 
 	async zoomIn(canvas: ReturnType<Page['locator']>): Promise<void> {
-		const box = (await canvas.boundingBox())!;
+		const box = await requireBox(canvas, 'viewer canvas');
 		await canvas.dispatchEvent('wheel', {
 			deltaY: -300,
 			clientX: box.x + box.width / 2,
@@ -84,7 +77,7 @@ class ViewerHarness {
 	}
 
 	async drag(canvas: ReturnType<Page['locator']>, dx: number, dy: number): Promise<void> {
-		const box = (await canvas.boundingBox())!;
+		const box = await requireBox(canvas, 'viewer canvas');
 		const cx = box.x + box.width / 2;
 		const cy = box.y + box.height / 2;
 		await this.page.mouse.move(cx, cy);
@@ -101,12 +94,12 @@ class ViewerHarness {
 				() => !!(window as unknown as Record<string, unknown>).__viewerState
 			);
 			expect(hasState).toBe(true);
-		}).toPass({ timeout: 15_000, intervals: [500] });
+		}).toPass(Poll.pipeline);
 	}
 
 	async expectCanvasVisible(): Promise<void> {
 		const canvas = this.page.locator('canvas');
-		await expect(canvas).toBeVisible({ timeout: 10_000 });
+		await expect(canvas).toBeVisible({ timeout: Timeouts.action });
 		const box = await canvas.boundingBox();
 		expect(box).toBeTruthy();
 		expect(box!.width).toBeGreaterThan(0);
@@ -117,7 +110,7 @@ class ViewerHarness {
 		await expect(async () => {
 			const current = await this.getZoomLevel();
 			expect(current).not.toBeCloseTo(previousZoom, 1);
-		}).toPass({ timeout: 5_000, intervals: [200] });
+		}).toPass(Poll.fast);
 	}
 
 	async expectOffsetChanged(previousOffset: [number, number]): Promise<void> {
@@ -127,14 +120,14 @@ class ViewerHarness {
 				Math.abs(layout.uv_offset[0] - previousOffset[0]) > 1e-6 ||
 				Math.abs(layout.uv_offset[1] - previousOffset[1]) > 1e-6;
 			expect(changed).toBe(true);
-		}).toPass({ timeout: 5_000, intervals: [200] });
+		}).toPass(Poll.fast);
 	}
 
 	async expectZoomPercentageChanged(previousPct: number): Promise<void> {
 		await expect(async () => {
 			const current = await this.getZoomPercentage();
 			expect(current).not.toBeCloseTo(previousPct, 0);
-		}).toPass({ timeout: 5_000, intervals: [200] });
+		}).toPass(Poll.fast);
 	}
 }
 

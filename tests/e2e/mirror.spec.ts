@@ -1,8 +1,6 @@
 import { test, expect } from './mirror-fixture';
 
 test.describe('Mirror', () => {
-	test.skip(!!process.env.CI, 'requires GPU');
-
 	test('both canvases render on page load', async ({ page, mirror }) => {
 		await page.goto('/mirror');
 		await mirror.expectBothCanvasesVisible();

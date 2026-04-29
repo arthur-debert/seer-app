@@ -3,6 +3,7 @@
 	import { Renderer } from '$lib/viewer/renderer';
 	import { initViewportWasm, ViewerState } from '$lib/viewer/viewport';
 	import type { ViewLayout } from '$lib/viewer/viewport';
+	import { emitTestEvent, setTestReady } from '$lib/test-bridge';
 
 	interface Props {
 		leftImageBytes: ArrayBuffer;
@@ -46,6 +47,8 @@
 
 		async function setup(): Promise<void> {
 			await initViewportWasm();
+			emitTestEvent('wasm:loaded');
+			setTestReady('wasm', true);
 
 			// Init first renderer to get GPU device, share it with second
 			await leftRenderer.init(leftCanvas!);
@@ -79,6 +82,9 @@
 					right: rightState
 				};
 			}
+
+			emitTestEvent('viewer:rendered');
+			setTestReady('viewer', true);
 
 			log.info('mirror initialized', {
 				left: leftDims,

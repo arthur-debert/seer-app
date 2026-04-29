@@ -1,8 +1,6 @@
 import { test, expect } from './viewer-fixture';
 
 test.describe('Viewer', () => {
-	test.skip(!!process.env.CI, 'requires GPU');
-
 	test('canvas renders on page load', async ({ page, viewer }) => {
 		await page.goto('/viewer');
 		await viewer.expectCanvasVisible();
