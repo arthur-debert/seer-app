@@ -1,9 +1,9 @@
-# Seer App — Project Conventions
+# Arami App — Project Conventions
 
 ## What This Repo Is
 
-SvelteKit frontend for the Seer image editor. Consumes pre-built WASM packages from
-[seer-core](https://github.com/arthur-debert/seer-core) releases.
+SvelteKit frontend for the Arami image editor. Consumes pre-built WASM packages from
+[arami-core](https://github.com/arthur-debert/arami-core) releases.
 
 **Stack:** Svelte 5, TypeScript, Tailwind CSS, Vite, Playwright
 
@@ -19,12 +19,12 @@ WASM version is pinned in `wasm.config.json`. Packages are fetched automatically
 by `scripts/fetch-wasm.sh` (called via `pnpm fetch:wasm`, runs before dev/build).
 
 ```bash
-# Update to a new seer-core release
+# Update to a new arami-core release
 # Edit wasm.config.json → set "version" to the new tag
 pnpm fetch:wasm
 
-# Local dev against a local seer-core checkout
-SEER_WASM_PATH=../seer-core pnpm dev
+# Local dev against a local arami-core checkout
+ARAMI_WASM_PATH=../arami-core pnpm dev
 ```
 
 ## Branching

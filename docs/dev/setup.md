@@ -14,11 +14,11 @@ The `rust-toolchain.toml` at the repo root automatically installs the correct Ru
 ## First-time setup
 
 ```bash
-git clone https://github.com/arthur-debert/seer.git
-cd seer
+git clone https://github.com/arthur-debert/arami.git
+cd arami
 pnpm install              # JS dependencies + lefthook pre-commit hooks
-pnpm build:wasm           # compile seer-viewer -> WASM
-pnpm build:seer-editor-wasm     # compile seer-editor -> WASM
+pnpm build:wasm           # compile arami-viewer -> WASM
+pnpm build:arami-editor-wasm     # compile arami-editor -> WASM
 ```
 
 ## Development
@@ -50,6 +50,6 @@ These are the single source of truth. CI calls these scripts directly — no sep
 | ESLint                         | check-frontend.sh | JS/TS lint              |
 | Prettier                       | check-frontend.sh | Formatting              |
 | `pnpm build:wasm`              | check-frontend.sh | WASM compilation        |
-| `pnpm build:seer-editor-wasm`  | check-frontend.sh | Editor WASM compilation |
+| `pnpm build:arami-editor-wasm` | check-frontend.sh | Editor WASM compilation |
 | `svelte-check`                 | check-frontend.sh | TypeScript type errors  |
 | `vitest`                       | check-frontend.sh | Frontend logic bugs     |

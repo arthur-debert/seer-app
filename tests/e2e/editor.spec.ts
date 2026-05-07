@@ -20,32 +20,32 @@ test('pipeline is empty after load', async ({ editor }) => {
 });
 
 test('add Tone Curve adjustment', async ({ editor }) => {
-	await editor.addAdjustment('seer.tone-curve');
-	await editor.expectAdjustmentExists('seer.tone-curve');
+	await editor.addAdjustment('arami.tone-curve');
+	await editor.expectAdjustmentExists('arami.tone-curve');
 	await editor.expectPipelineLength(1);
 });
 
 test('add Color Mixer and verify params', async ({ editor }) => {
-	await editor.addAdjustment('seer.color-mixer');
-	await editor.expectAdjustmentExists('seer.color-mixer');
-	await editor.expectAdjustmentParams('seer.color-mixer', {
+	await editor.addAdjustment('arami.color-mixer');
+	await editor.expectAdjustmentExists('arami.color-mixer');
+	await editor.expectAdjustmentParams('arami.color-mixer', {
 		saturation: { Float: 0 }
 	});
 });
 
 test('add White Balance and verify params', async ({ editor }) => {
-	await editor.addAdjustment('seer.white-balance');
-	await editor.expectAdjustmentExists('seer.white-balance');
-	await editor.expectAdjustmentParams('seer.white-balance', {
+	await editor.addAdjustment('arami.white-balance');
+	await editor.expectAdjustmentExists('arami.white-balance');
+	await editor.expectAdjustmentParams('arami.white-balance', {
 		temperature: { Float: 6500 },
 		tint: { Float: 0 }
 	});
 });
 
 test('add Denoise and verify params', async ({ editor }) => {
-	await editor.addAdjustment('seer.denoise');
-	await editor.expectAdjustmentExists('seer.denoise');
-	await editor.expectAdjustmentParams('seer.denoise', {
+	await editor.addAdjustment('arami.denoise');
+	await editor.expectAdjustmentExists('arami.denoise');
+	await editor.expectAdjustmentParams('arami.denoise', {
 		spatial_sigma: { Float: 1 },
 		range_sigma: { Float: 0.1 },
 		iterations: { Int: 1 }
@@ -53,9 +53,9 @@ test('add Denoise and verify params', async ({ editor }) => {
 });
 
 test('add Sharpen and verify params', async ({ editor }) => {
-	await editor.addAdjustment('seer.sharpen');
-	await editor.expectAdjustmentExists('seer.sharpen');
-	await editor.expectAdjustmentParams('seer.sharpen', {
+	await editor.addAdjustment('arami.sharpen');
+	await editor.expectAdjustmentExists('arami.sharpen');
+	await editor.expectAdjustmentParams('arami.sharpen', {
 		radius: { Float: 1 },
 		amount: { Float: 0 },
 		threshold: { Float: 0 }
@@ -63,9 +63,9 @@ test('add Sharpen and verify params', async ({ editor }) => {
 });
 
 test('add Clarity and verify params', async ({ editor }) => {
-	await editor.addAdjustment('seer.clarity');
-	await editor.expectAdjustmentExists('seer.clarity');
-	await editor.expectAdjustmentParams('seer.clarity', {
+	await editor.addAdjustment('arami.clarity');
+	await editor.expectAdjustmentExists('arami.clarity');
+	await editor.expectAdjustmentParams('arami.clarity', {
 		strength: { Float: 0 }
 	});
 });

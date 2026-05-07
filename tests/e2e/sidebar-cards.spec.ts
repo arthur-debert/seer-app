@@ -18,12 +18,12 @@ test.describe('Sidebar Cards', () => {
 
 	test('adding adjustment via radial menu creates a card', async ({ editor, ui }) => {
 		await ui.addViaRadialMenu('phase-add-3.-adjustments', 'Tone Curve');
-		await editor.expectAdjustmentExists('seer.tone-curve');
+		await editor.expectAdjustmentExists('arami.tone-curve');
 
 		// The card should be visible in the sidebar
 		const state = await editor.getState();
 		expect(state.adjustments.length).toBe(1);
-		expect(state.adjustments[0].plugin_id).toBe('seer.tone-curve');
+		expect(state.adjustments[0].plugin_id).toBe('arami.tone-curve');
 	});
 
 	test('adding geometry via radial menu creates a card', async ({ editor, ui }) => {
@@ -31,7 +31,7 @@ test.describe('Sidebar Cards', () => {
 
 		const state = await editor.getState();
 		expect(state.geometry.length).toBe(1);
-		expect(state.geometry[0].plugin_id).toBe('seer.crop');
+		expect(state.geometry[0].plugin_id).toBe('arami.crop');
 	});
 
 	test('multiple adjustments appear in order', async ({ editor, ui }) => {
@@ -40,8 +40,8 @@ test.describe('Sidebar Cards', () => {
 
 		const state = await editor.getState();
 		expect(state.adjustments.length).toBe(2);
-		expect(state.adjustments[0].plugin_id).toBe('seer.white-balance');
-		expect(state.adjustments[1].plugin_id).toBe('seer.tone-curve');
+		expect(state.adjustments[0].plugin_id).toBe('arami.white-balance');
+		expect(state.adjustments[1].plugin_id).toBe('arami.tone-curve');
 	});
 
 	test('removing adjustment updates sidebar', async ({ editor, ui, page }) => {
@@ -66,7 +66,7 @@ test.describe('Sidebar Cards', () => {
 			expect(state.adjustments.length).toBe(1);
 		}).toPass({ timeout: 5_000, intervals: [200] });
 
-		expect(state.adjustments[0].plugin_id).toBe('seer.tone-curve');
+		expect(state.adjustments[0].plugin_id).toBe('arami.tone-curve');
 	});
 
 	test('source node is always visible', async ({ editor, page }) => {

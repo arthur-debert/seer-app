@@ -1,6 +1,6 @@
-Seer Walk-Through
+Arami Walk-Through
 
-This document is for technical contributors, both human and AI agents. It covers the vision, user needs, design decisions and architecture of Seer. We deliberately include the _why_ behind decisions: without this context, contributors (especially agents) quickly make choices that contradict the project's goals.
+This document is for technical contributors, both human and AI agents. It covers the vision, user needs, design decisions and architecture of Arami. We deliberately include the _why_ behind decisions: without this context, contributors (especially agents) quickly make choices that contradict the project's goals.
 
   It mixes current state and future plans in one document rather than maintaining two that lose context against each other. Where something is planned but not yet implemented, we say so explicitly.
 
@@ -9,25 +9,25 @@ This document is for technical contributors, both human and AI agents. It covers
 
 1. Vision
 
-  Seer is a photo editing application for pro-grade editing, from raw files to final outputs. It is not a drop-in replacement for LightRoom, DarkTable or CaptureOne. It is an opinionated exploration of a different paradigm: a zone-first editing workflow, a portable execution model, and a pluggable pipeline where application order is always explicit.
+  Arami is a photo editing application for pro-grade editing, from raw files to final outputs. It is not a drop-in replacement for LightRoom, DarkTable or CaptureOne. It is an opinionated exploration of a different paradigm: a zone-first editing workflow, a portable execution model, and a pluggable pipeline where application order is always explicit.
 
   1.1 Semantic Editing
 
     Traditional photo editors are tools-first: pick a tool, then decide where it applies. Photographers think the other way around. They see regions of meaning in the image: the sky needs darkening, the subject needs lifting, the foliage needs separation. The regions come first. The adjustments follow.
 
-    Seer makes this inversion explicit. Zones are the primary organizing concept. An adjustment is a verb applied to a zone, not the other way around. The question is not "which adjustment am I editing?" but "which part of the image am I working on?"
+    Arami makes this inversion explicit. Zones are the primary organizing concept. An adjustment is a verb applied to a zone, not the other way around. The question is not "which adjustment am I editing?" but "which part of the image am I working on?"
 
-    At the lowest level, zones can be defined by pixel properties: luminance ranges, color ranges, linear gradients, or hand-painted brush strokes. These are useful and familiar. But the distinctive feature is semantic segmentation: Seer runs a neural network (SegFormer, via ONNX) to partition the image into photographic regions (sky, person, vegetation, structure), then lets the photographer target adjustments at those regions directly. A tone curve can apply only to the sky. A different curve can apply only to people. The photographer defines intent; the system handles the pixel-level masking.
+    At the lowest level, zones can be defined by pixel properties: luminance ranges, color ranges, linear gradients, or hand-painted brush strokes. These are useful and familiar. But the distinctive feature is semantic segmentation: Arami runs a neural network (SegFormer, via ONNX) to partition the image into photographic regions (sky, person, vegetation, structure), then lets the photographer target adjustments at those regions directly. A tone curve can apply only to the sky. A different curve can apply only to people. The photographer defines intent; the system handles the pixel-level masking.
 
-    This is not a black box. Seer bridges consumer-grade magic (all-or-nothing AI output) and pro-grade control (manual pixel masks). Semantic zones are a starting point. The photographer can refine them with boolean operations (union, intersect, subtract, invert), combine them with property-based zones, or drop down to brush-level painting. The goal is to automate the tedious parts while keeping full creative control available.
+    This is not a black box. Arami bridges consumer-grade magic (all-or-nothing AI output) and pro-grade control (manual pixel masks). Semantic zones are a starting point. The photographer can refine them with boolean operations (union, intersect, subtract, invert), combine them with property-based zones, or drop down to brush-level painting. The goal is to automate the tedious parts while keeping full creative control available.
 
     _Current state:_ segmentation runs in-browser via SegFormer B0 (ONNX). Four photographic categories are produced (sky, person, vegetation, structure), mapped from the 150-class ADE20K model. Adjustments target regions via PartitionLabel zone sources with configurable edge blur. The Adaptive B&W combo demonstrates the full workflow. The broader vision of natural-language-style intent ("burn the background a bit") remains aspirational.
 
   1.2 Run Anywhere
 
-    Photographers work on a desktop workstation at home, a laptop on a trip, a tablet on a couch. Seer is designed so that the same editing experience is available across devices and form factors: desktop apps, web browser, and eventually mobile.
+    Photographers work on a desktop workstation at home, a laptop on a trip, a tablet on a couch. Arami is designed so that the same editing experience is available across devices and form factors: desktop apps, web browser, and eventually mobile.
 
-    Photo libraries are large. A cloud-only storage model makes for a poor experience in the most common case: local work on your own machine. Hence, Seer separates three concerns that traditional editors conflate:
+    Photo libraries are large. A cloud-only storage model makes for a poor experience in the most common case: local work on your own machine. Hence, Arami separates three concerns that traditional editors conflate:
 
     - Client: the UI rendering and interaction layer.
     - Execution: the Rust backend that runs the pipeline. It can be compiled to WASM and shipped inside the client, or (planned) run as a local server process or remote API.
@@ -35,14 +35,14 @@ This document is for technical contributors, both human and AI agents. It covers
 
     This separation means multiple clients can operate on the same data. That introduces the possibility of conflicts, which is addressed through the version tree and CRDT-compatible data model described in [#2.5].
 
-    _Current state:_ Seer runs as a Tauri desktop app. All Rust computation is WASM-compiled and executed in a web worker inside the browser view. Server mode, mobile clients, and cloud storage are not yet implemented. The architecture supports them but only the Tauri + WASM-in-browser configuration works today.
+    _Current state:_ Arami runs as a Tauri desktop app. All Rust computation is WASM-compiled and executed in a web worker inside the browser view. Server mode, mobile clients, and cloud storage are not yet implemented. The architecture supports them but only the Tauri + WASM-in-browser configuration works today.
 
 
 2. Architecture
 
   2.1 The 5-Phase Pipeline
 
-    Image processing operations are not commutative. Application order changes results. Most photo editors hide this behind implicit, opaque ordering, forcing the user to guess or experiment. Seer makes order explicit everywhere: in the data model, the serialized sidecar, the evaluator, and the UI.
+    Image processing operations are not commutative. Application order changes results. Most photo editors hide this behind implicit, opaque ordering, forcing the user to guess or experiment. Arami makes order explicit everywhere: in the data model, the serialized sidecar, the evaluator, and the UI.
 
     The document is a strictly ordered pipeline of five phases:
 
@@ -155,12 +155,12 @@ This document is for technical contributors, both human and AI agents. It covers
 
       Today, the only integration path is implementing a Rust trait and compiling it into the binary. Two additional models are designed but not yet implemented:
 
-      - WASM plugin runtime (planned): third-party plugins as .wasm modules loaded via Wasmtime, with WIT interface contracts per extension type and a .seerplugin package format. WASM fuel metering would provide timeout guarantees.
+      - WASM plugin runtime (planned): third-party plugins as .wasm modules loaded via Wasmtime, with WIT interface contracts per extension type and a .aramiplugin package format. WASM fuel metering would provide timeout guarantees.
       - Native process plugins (planned): C/C++ code running as a sandboxed child process with shared-memory pixel exchange. This lowers the barrier for researchers with existing C implementations. OS-level sandboxing (sandbox-exec on macOS, seccomp-bpf on Linux) and resource limits (RLIMIT_CPU, RLIMIT_AS) would contain untrusted code.
 
   2.4 Execution Model
 
-    Seer splits the application into two layers with a hard boundary between them:
+    Arami splits the application into two layers with a hard boundary between them:
 
     - Frontend: Svelte 5 UI. Handles rendering, user interaction, and layout. Contains no image processing logic, no pipeline state, no adjustment math.
     - Backend: Rust crates compiled to WASM. Contains all pipeline logic, all image processing, the version tree, zone evaluation, and plugin dispatch.
@@ -189,11 +189,11 @@ This document is for technical contributors, both human and AI agents. It covers
 
       The backend is organized as five crates:
 
-      - seer-editor: the 5-phase pipeline, plugin traits and registry, evaluator, version tree, Session API, all processing functions. Pure Rust, no WASM dependencies, compiles to both native and wasm32.
-      - seer-viewer: viewport math, pan/zoom, tiled rendering coordinates.
-      - seer-editor-wasm: thin wasm-bindgen bridge over seer-editor. Delegates to Session for all mutation and evaluation logic; handles only UUID parsing and JS serialization.
-      - seer-viewer-wasm: thin wasm-bindgen bridge over seer-viewer. Exposes ViewerState and FramerState.
-      - seer-cli: shell-native CLI binary. Auto-generates subcommands from plugin ParamSchema, pipes VersionTree JSON between stages, delegates to Session for all logic. See [#2.6].
+      - arami-editor: the 5-phase pipeline, plugin traits and registry, evaluator, version tree, Session API, all processing functions. Pure Rust, no WASM dependencies, compiles to both native and wasm32.
+      - arami-viewer: viewport math, pan/zoom, tiled rendering coordinates.
+      - arami-editor-wasm: thin wasm-bindgen bridge over arami-editor. Delegates to Session for all mutation and evaluation logic; handles only UUID parsing and JS serialization.
+      - arami-viewer-wasm: thin wasm-bindgen bridge over arami-viewer. Exposes ViewerState and FramerState.
+      - arami-cli: shell-native CLI binary. Auto-generates subcommands from plugin ParamSchema, pipes VersionTree JSON between stages, delegates to Session for all logic. See [#2.6].
 
     2.4.4 Rendering
 
@@ -213,7 +213,7 @@ This document is for technical contributors, both human and AI agents. It covers
 
     2.5.2 Sidecar Persistence
 
-      The version tree serializes to a .seer JSON sidecar file alongside the source image. The sidecar contains the full tree (all nodes, branches, tags, snapshots). Loading a sidecar restores the complete editing history. The format supports legacy migration from older flat EditGraph sidecars.
+      The version tree serializes to a .arami JSON sidecar file alongside the source image. The sidecar contains the full tree (all nodes, branches, tags, snapshots). Loading a sidecar restores the complete editing history. The format supports legacy migration from older flat EditGraph sidecars.
 
     2.5.3 Sync and Conflict Resolution (Planned)
 
@@ -234,7 +234,7 @@ This document is for technical contributors, both human and AI agents. It covers
 
     2.6.1 Session — The Shared Engine API
 
-      Session (seer-editor/src/session.rs) composes all engine state: VersionTree, PipelineEvaluator, PixelBuffer, PluginRegistry, and ClassMap. It provides a pure-Rust API that any frontend uses without touching serialization or framework-specific types.
+      Session (arami-editor/src/session.rs) composes all engine state: VersionTree, PipelineEvaluator, PixelBuffer, PluginRegistry, and ClassMap. It provides a pure-Rust API that any frontend uses without touching serialization or framework-specific types.
 
       The WASM bridge wraps Session with wasm-bindgen methods that parse UUIDs from strings and serialize results to JS objects. The CLI calls Session directly with Rust types. Both go through the same validation and history recording paths. Future adapters (HTTP API, Rhai scripting) would do the same.
 
@@ -244,10 +244,10 @@ This document is for technical contributors, both human and AI agents. It covers
 
       CLI commands pipe a JSON envelope between stages. The envelope carries the protocol version, source image path, and the full VersionTree (identical to sidecar format). No pixel data flows through the pipe — only the editing description (~5-15 KB per stage).
 
-      Evaluation is lazy: intermediate commands (seer-cli white-balance, seer-cli crop) only mutate the graph. The terminal command (seer-cli save) loads the source image, runs the pipeline, and encodes output. This keeps intermediate stages fast (~5ms per invocation).
+      Evaluation is lazy: intermediate commands (arami-cli white-balance, arami-cli crop) only mutate the graph. The terminal command (arami-cli save) loads the source image, runs the pipeline, and encodes output. This keeps intermediate stages fast (~5ms per invocation).
 
     2.6.3 Auto-Generated CLI
 
-      Each plugin's describe() method returns a ParamSchema with typed parameter descriptors. The CLI generator (seer-cli/src/cli_gen.rs) walks the PluginRegistry and builds clap subcommands at runtime. Adding a plugin to the registry automatically adds it to the CLI. Parameter types map to typed CLI flags: Float and Int get range-validated numeric args, Bool becomes a flag, Choice gets a constrained value set, and complex types (Color, Curve, Point, Rect) accept comma-separated strings or @file references.
+      Each plugin's describe() method returns a ParamSchema with typed parameter descriptors. The CLI generator (arami-cli/src/cli_gen.rs) walks the PluginRegistry and builds clap subcommands at runtime. Adding a plugin to the registry automatically adds it to the CLI. Parameter types map to typed CLI flags: Float and Int get range-validated numeric args, Bool becomes a flag, Choice gets a constrained value set, and complex types (Color, Curve, Point, Rect) accept comma-separated strings or @file references.
 
-    _Current state:_ The CLI binary (seer-cli) supports the full adjustment and zone pipeline, presets, inline zones, sidecar apply, and composable pipe chains. Daemon mode, Rhai scripting, and HTTP API are planned but not implemented.
+    _Current state:_ The CLI binary (arami-cli) supports the full adjustment and zone pipeline, presets, inline zones, sidecar apply, and composable pipe chains. Daemon mode, Rhai scripting, and HTTP API are planned but not implemented.

@@ -5,7 +5,7 @@
 <main class="bg-surface-0 flex h-screen w-screen items-center justify-center">
 	<div class="max-w-md space-y-8">
 		<div>
-			<h1 class="text-text-primary text-2xl font-semibold">Seer</h1>
+			<h1 class="text-text-primary text-2xl font-semibold">Arami</h1>
 			<p class="text-text-muted mt-1 text-sm">Component demos</p>
 		</div>
 

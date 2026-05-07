@@ -61,7 +61,7 @@
 	<div class="mx-auto max-w-4xl">
 		<h1 class="text-text-primary text-2xl font-semibold">Design System</h1>
 		<p class="text-text-muted mt-1 text-sm">
-			Token reference for the Seer UI —
+			Token reference for the Arami UI —
 			<a href={resolve('/components')} class="text-accent hover:underline">Components</a>
 		</p>
 

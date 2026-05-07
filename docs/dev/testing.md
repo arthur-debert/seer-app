@@ -21,37 +21,37 @@ GPU, no Tauri, no browser.
 
 **What lives here:**
 
-### seer-viewer
+### arami-viewer
 
 - Viewport math — `compute_fit`, `compute_view_layout`, zoom/pan functions
-  (`src-tauri/seer-viewer/src/viewport.rs`, `viewer.rs`). Protected by `proptest` for mathematical invariant fuzzing.
+  (`src-tauri/arami-viewer/src/viewport.rs`, `viewer.rs`). Protected by `proptest` for mathematical invariant fuzzing.
 - Geometry primitives — `Point`, `Size`, `Rect`
-  (`src-tauri/seer-viewer/src/geometry.rs`)
+  (`src-tauri/arami-viewer/src/geometry.rs`)
 - Framer layout — cover-fit, pan clamping, crop computation
-  (`src-tauri/seer-viewer/src/framer.rs`)
+  (`src-tauri/arami-viewer/src/framer.rs`)
 - Serialization — ViewLayout JSON structure matches frontend expectations
-  (`src-tauri/seer-viewer/tests/serialization.rs`)
+  (`src-tauri/arami-viewer/tests/serialization.rs`)
 
-### seer-editor
+### arami-editor
 
 - Pipeline evaluation — adjustment processing, cache invalidation
-  (`src-tauri/seer-editor/src/evaluate.rs`)
+  (`src-tauri/arami-editor/src/evaluate.rs`)
 - History — coalescing, group lifecycle, log attachment
-  (`src-tauri/seer-editor/src/history.rs`)
+  (`src-tauri/arami-editor/src/history.rs`)
 - Processing adjustments — each adjustment module has unit tests for identity defaults,
   parameter ranges, and algorithm correctness
-  (`src-tauri/seer-editor/src/processing/`)
+  (`src-tauri/arami-editor/src/processing/`)
 - Zone composition — boolean operations, blending
-  (`src-tauri/seer-editor/src/zone.rs`)
+  (`src-tauri/arami-editor/src/zone.rs`)
 - Graph operations — add/remove/reorder adjustments, sidecar round-trip
-  (`src-tauri/seer-editor/src/graph.rs`, `sidecar.rs`)
+  (`src-tauri/arami-editor/src/graph.rs`, `sidecar.rs`)
 
 ### WASM bridge
 
-- `seer-viewer-wasm` — JS-to-WASM type fidelity, module loading
-  (`src-tauri/seer-viewer-wasm/tests/wasm_roundtrip.rs` via `wasm-pack test --node`)
-- `seer-editor-wasm` — EditGraph construction, mutation methods, history integration
-  (`src-tauri/seer-editor-wasm/tests/wasm_roundtrip.rs` via `wasm-pack test --node`)
+- `arami-viewer-wasm` — JS-to-WASM type fidelity, module loading
+  (`src-tauri/arami-viewer-wasm/tests/wasm_roundtrip.rs` via `wasm-pack test --node`)
+- `arami-editor-wasm` — EditGraph construction, mutation methods, history integration
+  (`src-tauri/arami-editor-wasm/tests/wasm_roundtrip.rs` via `wasm-pack test --node`)
 
 ### TypeScript
 

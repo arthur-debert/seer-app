@@ -1,11 +1,11 @@
 # Versioning — Unified History, Undo/Redo, and Version Management
 
-**Component:** seer-editor::versioning (new), seer-editor::history (extended)
+**Component:** arami-editor::versioning (new), arami-editor::history (extended)
 **Part of:** Circe image editing engine
 
 ## Context
 
-Seer's editing pipeline is non-destructive: adjustments are stacked, not
+Arami's editing pipeline is non-destructive: adjustments are stacked, not
 baked. Versioning extends this by making the edit state itself navigable,
 restorable, and branchable.
 
@@ -17,7 +17,7 @@ share a common data model:
 | **Undo/Redo**           | Done        | Step backward/forward through recent actions           |
 | **History navigation**  | Done        | Jump to any point in the session log                   |
 | **Named versions**      | Done        | Label a state ("BW attempt", "warm grade") for recall  |
-| **Sidecar persistence** | Done        | Save/restore full version tree in `.seer` file         |
+| **Sidecar persistence** | Done        | Save/restore full version tree in `.arami` file        |
 | **Visual previews**     | Planned     | Low-res thumbnails that make versions recognizable     |
 | **Pipeline branching**  | Planned     | Fork the pipeline at a point to explore two directions |
 | **CRDT sync**           | Design only | Merge edit histories across devices without conflicts  |
@@ -39,7 +39,7 @@ captures a complete pipeline snapshot.
    prior setup — naming a version is a convenience, not a prerequisite.
 
 3. **Rust-first.** Tree construction, traversal, diffing, snapshot
-   restoration, and undo computation all live in `seer-editor`. The
+   restoration, and undo computation all live in `arami-editor`. The
    frontend renders data that Rust produces.
 
 4. **Minimal memory footprint.** Full pipeline snapshots are cheap (the
@@ -435,7 +435,7 @@ entries show a small thumbnail beside the tag badge.
 
 ## Sidecar Persistence
 
-The sidecar (`.seer` file) stores the version tree for session
+The sidecar (`.arami` file) stores the version tree for session
 restoration:
 
 ```json
@@ -514,7 +514,7 @@ The mapping to the existing CRDT design in `edit-pipeline.md` §7:
 
 ## Relationship to Existing History System
 
-The `HistoryManager` in `seer-editor::history` is well-implemented and
+The `HistoryManager` in `arami-editor::history` is well-implemented and
 well-tested. Its role changes but it is not discarded:
 
 **What stays:**

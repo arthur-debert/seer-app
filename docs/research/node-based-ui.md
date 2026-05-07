@@ -97,7 +97,7 @@ The key to its success: strict mapping between the visual node and its
 underlying code class. Developers define inputs/outputs in a Python dictionary;
 the front end automatically translates them into inline widgets. This
 eliminates the need to manually build and maintain separate configuration
-panels — exactly the declare-process model Seer already uses with ParamSchema.
+panels — exactly the declare-process model Arami already uses with ParamSchema.
 
 ### Cables.gl (Interactive Web Graphics)
 
@@ -138,7 +138,7 @@ converge through processing nodes, and produce output at the bottom.
   image-based workflows this is critical — artists debug the graph by
   scanning thumbnails to see where a texture broke or a color degraded.
 
-For Seer, live thumbnails on nodes provide immediate visual feedback about
+For Arami, live thumbnails on nodes provide immediate visual feedback about
 the state of the image at any pipeline point.
 
 ## Transient Interfaces: HUDs, Hotboxes, Marking Menus
@@ -165,7 +165,7 @@ Holding spacebar summons the entire menu system centered at the cursor,
 overlaying the viewport. Eliminates traveling to the menu bar. Professional
 users customize it to show only relevant modules.
 
-### Application to Seer
+### Application to Arami
 
 A spacebar-triggered HUD over the graph area could replace the traditional
 "Node Library" sidebar or "Filters" menu:

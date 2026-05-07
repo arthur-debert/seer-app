@@ -1,13 +1,13 @@
-Seer Code Walkthrough
+Arami Code Walkthrough
 
-This document walks through every major component of the Seer codebase in dependency order. Each section builds only on what came before. By the end you will understand the full data path: image bytes in, edited pixels out, rendered to screen.
+This document walks through every major component of the Arami codebase in dependency order. Each section builds only on what came before. By the end you will understand the full data path: image bytes in, edited pixels out, rendered to screen.
 
 The walkthrough follows the code, not the architecture document. Where readme.lex explains _why_, this document explains _how_ — with file paths, struct names, and function signatures.
 
 
 1. PixelBuffer — The Universal Currency
 
-  File: seer-editor/src/pixel_buffer.rs
+  File: arami-editor/src/pixel_buffer.rs
 
   Every component in the pipeline produces, consumes, or transforms a PixelBuffer. It is the single representation for image data throughout the system.
 
@@ -36,7 +36,7 @@ The walkthrough follows the code, not the architecture document. Where readme.le
 
 1b. Color Space Module — The Pipeline's Color Foundation
 
-  File: seer-editor/src/color_space.rs
+  File: arami-editor/src/color_space.rs
 
   The pipeline operates in Linear Rec. 2020 throughout. Source plugins convert input images from sRGB to Rec. 2020 at ingestion. The ODT (Output Device Transform) converts back to display sRGB at output boundaries (screen rendering and file export). No plugin needs to know about sRGB during processing.
 
@@ -51,7 +51,7 @@ The walkthrough follows the code, not the architecture document. Where readme.le
 
 2. Parameter Schema — How Plugins Describe Themselves
 
-  File: seer-editor/src/plugin.rs (lines 35–261)
+  File: arami-editor/src/plugin.rs (lines 35–261)
 
   Before seeing any plugin trait, understand the self-describing parameter system. It is the contract between plugins and everything else: the UI auto-generates controls from it, serialization stores it, history diffs it.
 
@@ -105,14 +105,14 @@ The walkthrough follows the code, not the architecture document. Where readme.le
 
 3. Plugin Traits — The Extension Points
 
-  File: seer-editor/src/plugin.rs (lines 263–437)
+  File: arami-editor/src/plugin.rs (lines 263–437)
 
   Three traits define the plugin API. Built-in operations implement the same traits that third-party plugins would.
 
   3.1 AdjustmentPlugin
 
     trait AdjustmentPlugin: Send + Sync {
-        fn id(&self) -> &str;                  // "seer.white-balance"
+        fn id(&self) -> &str;                  // "arami.white-balance"
         fn name(&self) -> &str;                // "White Balance"
         fn category(&self) -> AdjustmentCategory;  // Color, Tone, Detail, Creative, Correction, Ai
         fn accepts_zone(&self) -> bool;        // default: true
@@ -155,7 +155,7 @@ The walkthrough follows the code, not the architecture document. Where readme.le
 
 4. Plugin Registry — The Lookup Table
 
-  File: seer-editor/src/registry.rs
+  File: arami-editor/src/registry.rs
 
   PluginRegistry holds four HashMaps of boxed trait objects:
 
@@ -170,21 +170,21 @@ The walkthrough follows the code, not the architecture document. Where readme.le
 
   PluginRegistry::core() creates a registry with all 18 built-in plugins:
 
-    Sources (2):    seer.source.standard (PNG/JPEG/TIFF), seer.source.raw (DNG/RAW)
-    Geometry (3):   seer.crop, seer.rotate, seer.perspective
-    Adjustments (8): seer.white-balance, seer.tone-curve, seer.color-mixer,
-                     seer.monochrome, seer.clahe, seer.denoise, seer.sharpen, seer.clarity
-    Zone generators (5): seer.zone.luminance, seer.zone.color-range, seer.zone.gradient,
-                         seer.zone.brush, seer.zone.segmentation
+    Sources (2):    arami.source.standard (PNG/JPEG/TIFF), arami.source.raw (DNG/RAW)
+    Geometry (3):   arami.crop, arami.rotate, arami.perspective
+    Adjustments (8): arami.white-balance, arami.tone-curve, arami.color-mixer,
+                     arami.monochrome, arami.clahe, arami.denoise, arami.sharpen, arami.clarity
+    Zone generators (5): arami.zone.luminance, arami.zone.color-range, arami.zone.gradient,
+                         arami.zone.brush, arami.zone.segmentation
 
-  Lookup is by string ID: registry.adjustment("seer.white-balance"). The evaluator dispatches through these lookups at runtime.
+  Lookup is by string ID: registry.adjustment("arami.white-balance"). The evaluator dispatches through these lookups at runtime.
 
   Convenience methods: adjustment_defaults(id) calls describe() then default_params() to produce a ParamValues ready for use. adjustment_schema(id) returns the raw ParamSchema. source_for_extension(ext) iterates sources to find one that accepts().
 
 
 5. Concrete Plugins — How Processing Works
 
-  Files: seer-editor/src/plugins/*.rs, seer-editor/src/processing/*.rs
+  Files: arami-editor/src/plugins/*.rs, arami-editor/src/processing/*.rs
 
   Every plugin follows the same pattern: a thin wrapper in plugins/ that implements the trait, delegating actual computation to a pure function in processing/. This separation keeps the trait implementation clean and the processing function independently testable.
 
@@ -219,13 +219,13 @@ The walkthrough follows the code, not the architecture document. Where readme.le
 
 6. Adjustment — The Pipeline Node
 
-  File: seer-editor/src/adjustment.rs
+  File: arami-editor/src/adjustment.rs
 
   An Adjustment is the data structure that lives in the pipeline. It pairs a plugin_id with runtime state:
 
     struct Adjustment {
         id: AdjustmentId,     // UUID
-        plugin_id: String,    // "seer.white-balance"
+        plugin_id: String,    // "arami.white-balance"
         name: String,         // "White Balance"
         params: ParamValues,  // HashMap<String, ParamValue>
         enabled: bool,
@@ -239,7 +239,7 @@ The walkthrough follows the code, not the architecture document. Where readme.le
 
 7. Zone System — Masks and Compositions
 
-  File: seer-editor/src/zone.rs
+  File: arami-editor/src/zone.rs
 
   Zones are the mechanism connecting semantic editing to the pipeline. They are document-level objects, not owned by individual adjustments.
 
@@ -297,7 +297,7 @@ The walkthrough follows the code, not the architecture document. Where readme.le
 
 8. Zone Generator Plugins — Producing Masks
 
-  Files: seer-editor/src/zone_plugins/*.rs
+  Files: arami-editor/src/zone_plugins/*.rs
 
   Five built-in generators, each implementing ZoneGeneratorPlugin:
 
@@ -326,7 +326,7 @@ The walkthrough follows the code, not the architecture document. Where readme.le
 
 9. EditGraph — The 5-Phase Document Model
 
-  File: seer-editor/src/graph/mod.rs
+  File: arami-editor/src/graph/mod.rs
 
   EditGraph is the central data structure. It composes five typed phase sub-structs:
 
@@ -363,7 +363,7 @@ The walkthrough follows the code, not the architecture document. Where readme.le
 
     add_adaptive_bw(registry) is a compound operation that demonstrates the full model. It creates:
 
-    1. A seer.zone.segmentation zone generator
+    1. A arami.zone.segmentation zone generator
     2. Monochrome adjustment (BW conversion, weighted luminance)
     3. CLAHE adjustment (local contrast)
     4. ToneCurve with S-curve (global contrast)
@@ -378,7 +378,7 @@ The walkthrough follows the code, not the architecture document. Where readme.le
 
 10. Pipeline Evaluator — Streaming Execution
 
-  File: seer-editor/src/evaluate.rs
+  File: arami-editor/src/evaluate.rs
 
   PipelineEvaluator is the bridge between the declarative document model and imperative processing.
 
@@ -420,7 +420,7 @@ The walkthrough follows the code, not the architecture document. Where readme.le
 
 11. Version Tree — History with Branching
 
-  File: seer-editor/src/versioning/version_tree.rs
+  File: arami-editor/src/versioning/version_tree.rs
 
   Every mutation to the edit graph creates a new node in a version tree.
 
@@ -469,14 +469,14 @@ The walkthrough follows the code, not the architecture document. Where readme.le
 
   11.5 Sidecar Persistence
 
-    File: seer-editor/src/versioning/sidecar.rs
+    File: arami-editor/src/versioning/sidecar.rs
 
-    The version tree serializes to a .seer JSON file alongside the source image. Loading a sidecar restores the complete history including all branches, tags, and snapshots.
+    The version tree serializes to a .arami JSON file alongside the source image. Loading a sidecar restores the complete history including all branches, tags, and snapshots.
 
 
 12. Plugin Test Harness — The Behavioral Contract
 
-  File: seer-editor/src/plugin_harness.rs
+  File: arami-editor/src/plugin_harness.rs
 
   A universal test framework validates every registered plugin against six contract rules:
 
@@ -492,7 +492,7 @@ The walkthrough follows the code, not the architecture document. Where readme.le
 
 13. WASM Bridge — Crossing the Boundary
 
-  Files: seer-editor-wasm/src/lib.rs, seer-viewer-wasm/src/lib.rs
+  Files: arami-editor-wasm/src/lib.rs, arami-viewer-wasm/src/lib.rs
 
   13.1 Editor Bridge
 
@@ -502,7 +502,7 @@ The walkthrough follows the code, not the architecture document. Where readme.le
           session: Session,
       }
 
-    Session (seer-editor/src/session.rs) composes VersionTree, PipelineEvaluator, PixelBuffer, PluginRegistry, and ClassMap. All mutation logic, validation, and history recording live in Session. The WASM bridge is a thin layer that:
+    Session (arami-editor/src/session.rs) composes VersionTree, PipelineEvaluator, PixelBuffer, PluginRegistry, and ClassMap. All mutation logic, validation, and history recording live in Session. The WASM bridge is a thin layer that:
 
     1. Parses UUID strings into typed IDs (WASM receives strings from JS).
     2. Delegates to the corresponding Session method.
@@ -514,12 +514,12 @@ The walkthrough follows the code, not the architecture document. Where readme.le
 
   13.2 Viewer Bridge
 
-    seer-viewer-wasm exposes ViewerState (pan/zoom controller) and a stateless compute_view_layout() function. ViewerState methods return ViewLayout objects with uv_scale and uv_offset arrays that the GPU shader consumes directly.
+    arami-viewer-wasm exposes ViewerState (pan/zoom controller) and a stateless compute_view_layout() function. ViewerState methods return ViewLayout objects with uv_scale and uv_offset arrays that the GPU shader consumes directly.
 
 
 14. Viewer Math — Viewport, Pan, Zoom
 
-  Files: seer-viewer/src/viewport.rs, viewer.rs, framer.rs, geometry.rs
+  Files: arami-viewer/src/viewport.rs, viewer.rs, framer.rs, geometry.rs
 
   14.1 Geometry Primitives
 
@@ -796,7 +796,7 @@ The walkthrough follows the code, not the architecture document. Where readme.le
 
 21. CLI — Shell-Native Pipeline
 
-  Files: seer-cli/src/
+  Files: arami-cli/src/
 
   The CLI binary provides the same editing capabilities as the GUI via composable shell commands. It delegates all logic to Session.
 
@@ -811,7 +811,7 @@ The walkthrough follows the code, not the architecture document. Where readme.le
 
   21.2 Pipe Flow
 
-    seer-cli open photo.png | seer-cli white-balance --temperature 7500 | seer-cli save result.jpg
+    arami-cli open photo.png | arami-cli white-balance --temperature 7500 | arami-cli save result.jpg
 
     1. open: decodes the image via Session::open(), closes the "Open Image" group, writes PipeEnvelope JSON to stdout.
     2. white-balance: reads envelope from stdin, creates Session from VersionTree, calls add_adjustment + update_adjustment_params within a history group, writes updated envelope.
@@ -823,7 +823,7 @@ The walkthrough follows the code, not the architecture document. Where readme.le
 
     When clap matches a subcommand that is not a static command (open, save, etc.), main.rs dispatches to apply_plugin::dispatch(). This function:
 
-    1. Resolves the command name to a plugin ID (e.g. "white-balance" to "seer.white-balance").
+    1. Resolves the command name to a plugin ID (e.g. "white-balance" to "arami.white-balance").
     2. Looks up the plugin's ParamSchema.
     3. If --preset was given, loads the preset as a base ParamValues.
     4. Parses explicit CLI flags via args_to_param_values(), merging over the preset.
@@ -832,12 +832,12 @@ The walkthrough follows the code, not the architecture document. Where readme.le
 
   21.4 Presets
 
-    Built-in presets are hardcoded in presets.rs (e.g. white-balance: tungsten at 3200K, daylight at 5600K). User presets are JSON files in ~/.config/seer/presets/<plugin-name>/. User presets shadow built-in presets of the same name.
+    Built-in presets are hardcoded in presets.rs (e.g. white-balance: tungsten at 3200K, daylight at 5600K). User presets are JSON files in ~/.config/arami/presets/<plugin-name>/. User presets shadow built-in presets of the same name.
 
     Preset resolution: load base ParamValues from preset, then overlay any explicit CLI flags. This means --preset tungsten --tint 0.1 starts from 3200K and adds tint.
 
   21.5 Zones in CLI
 
-    Zone generators are added via seer-cli zone <generator> --name <name>. Compositions use seer-cli zone compose --op union --left a --right b --name c. Adjustments reference zones by name via --zone <name>.
+    Zone generators are added via arami-cli zone <generator> --name <name>. Compositions use arami-cli zone compose --op union --left a --right b --name c. Adjustments reference zones by name via --zone <name>.
 
     For one-off zones, --zone-inline luminance:range_low=0.7,range_high=1.0 creates an anonymous zone and binds it to the adjustment in a single command.

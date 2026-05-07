@@ -27,10 +27,10 @@ test('full pipeline: load → BW → segmentation → render', async ({ page, ed
 	await editor.expectNoErrors();
 
 	// 3. Apply the Adaptive BW combo: monochrome + CLAHE + tone curve + semantic zone
-	await editor.addAdjustment('seer.monochrome');
-	await editor.addAdjustment('seer.clahe');
-	await editor.addAdjustment('seer.tone-curve');
-	await editor.addZone('seer.zone.segmentation');
+	await editor.addAdjustment('arami.monochrome');
+	await editor.addAdjustment('arami.clahe');
+	await editor.addAdjustment('arami.tone-curve');
+	await editor.addZone('arami.zone.segmentation');
 
 	// 4. Wait for segmentation to complete
 	await editor.expectLogContains('[editor] segmentation complete');

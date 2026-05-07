@@ -7,7 +7,7 @@ produce a file from the same edited pipeline result. Examples: an archival TIFF,
 JPEG, an Instagram Story crop.
 
 Each output group is a **node group** containing ordered child nodes. This maintains
-Seer's 1:1 contract: every concern is a node with a declarative `ParamSchema`, and
+Arami's 1:1 contract: every concern is a node with a declarative `ParamSchema`, and
 clicking any node shows its ParamPanel in the edit pane.
 
 ## Data Model
@@ -29,7 +29,7 @@ struct OutputGroup {
 
 struct OutputChildNode {
     id: OutputChildId,           // UUID
-    plugin_id: String,           // "seer.output-child.resize" or "seer.output.jpeg"
+    plugin_id: String,           // "arami.output-child.resize" or "arami.output.jpeg"
     params: ParamValues,         // schema-driven
     enabled: bool,
 }
@@ -37,12 +37,12 @@ struct OutputChildNode {
 
 ### Child Node Types
 
-| Plugin ID                                                 | Role             | ParamSchema                                                     | Required?               |
-| --------------------------------------------------------- | ---------------- | --------------------------------------------------------------- | ----------------------- |
-| `seer.output.jpeg` / `.png` / `.webp` / `.tiff` / `.avif` | Encoder (anchor) | Format-specific (e.g. quality)                                  | Yes — cannot be removed |
-| `seer.output-child.resize`                                | Resize transform | mode (Choice), px/width/height (Int), label (String)            | No                      |
-| `seer.output-child.reframe`                               | Aspect crop      | aspect_w/h (Float), gravity (Choice), offset_x/offset_y (Float) | No                      |
-| `seer.output-child.metadata`                              | EXIF policy      | strip_exif/gps/iptc (Bool), copyright/artist (String)           | No                      |
+| Plugin ID                                                  | Role             | ParamSchema                                                     | Required?               |
+| ---------------------------------------------------------- | ---------------- | --------------------------------------------------------------- | ----------------------- |
+| `arami.output.jpeg` / `.png` / `.webp` / `.tiff` / `.avif` | Encoder (anchor) | Format-specific (e.g. quality)                                  | Yes — cannot be removed |
+| `arami.output-child.resize`                                | Resize transform | mode (Choice), px/width/height (Int), label (String)            | No                      |
+| `arami.output-child.reframe`                               | Aspect crop      | aspect_w/h (Float), gravity (Choice), offset_x/offset_y (Float) | No                      |
+| `arami.output-child.metadata`                              | EXIF policy      | strip_exif/gps/iptc (Bool), copyright/artist (String)           | No                      |
 
 ### Group-level vs Child-level Config
 
@@ -61,13 +61,13 @@ Users can add optional children (Reframe) or remove non-encoder children.
 
 ## Export Plugins
 
-| Format | Plugin ID          | Params                      | Extensions  |
-| ------ | ------------------ | --------------------------- | ----------- |
-| JPEG   | `seer.output.jpeg` | quality (1–100, default 92) | .jpg, .jpeg |
-| PNG    | `seer.output.png`  | —                           | .png        |
-| WebP   | `seer.output.webp` | — (lossless)                | .webp       |
-| TIFF   | `seer.output.tiff` | — (uncompressed)            | .tiff, .tif |
-| AVIF   | `seer.output.avif` | quality (1–100, default 80) | .avif       |
+| Format | Plugin ID           | Params                      | Extensions  |
+| ------ | ------------------- | --------------------------- | ----------- |
+| JPEG   | `arami.output.jpeg` | quality (1–100, default 92) | .jpg, .jpeg |
+| PNG    | `arami.output.png`  | —                           | .png        |
+| WebP   | `arami.output.webp` | — (lossless)                | .webp       |
+| TIFF   | `arami.output.tiff` | — (uncompressed)            | .tiff, .tif |
+| AVIF   | `arami.output.avif` | quality (1–100, default 80) | .avif       |
 
 ## Pipeline Execution
 
@@ -76,10 +76,10 @@ Users can add optional children (Reframe) or remove non-encoder children.
 ```
 Phase 0–3 (evaluate) → PixelBuffer
   → for each enabled child in group.child_pipeline:
-      seer.output-child.reframe → apply_reframe(buffer, params)
-      seer.output-child.resize  → apply_resize(buffer, params)
-      seer.output-child.metadata → collect MetadataPolicy from params
-      seer.output.*              → plugin.encode(buffer, params, ctx)
+      arami.output-child.reframe → apply_reframe(buffer, params)
+      arami.output-child.resize  → apply_resize(buffer, params)
+      arami.output-child.metadata → collect MetadataPolicy from params
+      arami.output.*              → plugin.encode(buffer, params, ctx)
   → return encoded bytes
 ```
 

@@ -1,7 +1,7 @@
 # Framer — Feature Spec
 
 **Component:** Framer
-**Part of:** Seer suite, Mirror subsystem
+**Part of:** Arami suite, Mirror subsystem
 
 ## What Framer Does
 
@@ -87,12 +87,12 @@ covered).
 
 ## Output
 
-In Seer's [Working Vocabulary](../README.md#working-vocabulary), Framer turns
+In Arami's [Working Vocabulary](../README.md#working-vocabulary), Framer turns
 a **Rendering** (an editorial treatment of an image) into a **Variant** (that rendering
 at a specific crop and output ratio). The input is the pixel data of a rendering; the
 output is a crop definition that specifies the variant.
 
-Concretely, Framer produces a `Rect` (as defined in `seer-viewer::geometry`) in
+Concretely, Framer produces a `Rect` (as defined in `arami-viewer::geometry`) in
 **image-pixel coordinates**. This rectangle describes the visible crop: where in the
 rendering the frame lands, at what size. Downstream consumers — export, further
 processing, Key Points — receive this rect and don't need to know about viewports or
@@ -107,7 +107,7 @@ These follow from the project's existing conventions (see `docs/dev/conventions.
 
 ### Rust-first logic
 
-All layout math, clamping, and state management live in `seer-viewer`. The
+All layout math, clamping, and state management live in `arami-viewer`. The
 TypeScript/Svelte side captures raw input events (drag deltas, scroll deltas, resize
 events) and forwards them to Rust. Rust returns the updated layout; TypeScript applies
 it to the GPU renderer.
@@ -140,9 +140,9 @@ Mobile gestures and keyboard shortcuts are future work.
 
 ### Existing types to use
 
-- `Point`, `Size`, `Rect` from `seer-viewer::geometry`
-- `ViewLayout` from `seer-viewer::viewport` for the display-side layout
-- The WASM bridge (`seer-viewer-wasm`) for browser-mode access to Rust logic
+- `Point`, `Size`, `Rect` from `arami-viewer::geometry`
+- `ViewLayout` from `arami-viewer::viewport` for the display-side layout
+- The WASM bridge (`arami-viewer-wasm`) for browser-mode access to Rust logic
 
 ## Key Behaviors to Get Right
 

@@ -1,11 +1,11 @@
 # Geometry in Source: Pre-Merge Spatial Transforms
 
-**Component:** `seer-editor::source` (Phase 0), `seer-editor::geometry` (Phase 1)
+**Component:** `arami-editor::source` (Phase 0), `arami-editor::geometry` (Phase 1)
 **Part of:** Circe image editing engine
 
 ## 1. Motivation
 
-Historically, Seer defined "Geometry" (crop, rotate, perspective) as a pipeline phase (Phase 1) that occurred _after_ the Condenser (Phase 0) merged all source inputs. This assumes a single coordinate space.
+Historically, Arami defined "Geometry" (crop, rotate, perspective) as a pipeline phase (Phase 1) that occurred _after_ the Condenser (Phase 0) merged all source inputs. This assumes a single coordinate space.
 
 However, in multi-source workflows, every image arrives in its own coordinate space. By forcing geometry to happen post-merge, we completely lose the ability to spatially manipulate individual inputs before they are flattened together.
 
@@ -54,7 +54,7 @@ Phase 1 retains its full role as **global spatial transforms** on the canonical 
 
 When dealing with **Overlays** (Scenario 3), a tension exists between Phase 0 (Condensers) and Phase 2 (Zones).
 
-In a true node-based compositor (a DAG like Nuke or Blender), you can load an overlay, load a background, use an AI mask generator to isolate a foreground actor, and mix them precisely. Seer relies on a strict **Linear Pipeline**: _Merge Pixels (0) → Geometry (1) → Cut Masks (2) → Adjust Pixels (3)_.
+In a true node-based compositor (a DAG like Nuke or Blender), you can load an overlay, load a background, use an AI mask generator to isolate a foreground actor, and mix them precisely. Arami relies on a strict **Linear Pipeline**: _Merge Pixels (0) → Geometry (1) → Cut Masks (2) → Adjust Pixels (3)_.
 
 If an overlay (a color graphic) is merged onto the base photo in Phase 0, it flattens the pixels. A Phase 2 Semantic Zone (SegFormer) can no longer identify the actor to pull them cleanly in front of the graphic — because the graphic has already overwritten the background.
 

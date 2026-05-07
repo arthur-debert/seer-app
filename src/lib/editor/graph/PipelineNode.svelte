@@ -159,7 +159,7 @@
 		</div>
 
 		<!-- Inline controls (default or expanded). Crop has special Edit Pane UI. -->
-		{#if verbosity !== 'collapsed' && d.schema && !d.isSource && (d.item as { plugin_id: string }).plugin_id !== 'seer.crop'}
+		{#if verbosity !== 'collapsed' && d.schema && !d.isSource && (d.item as { plugin_id: string }).plugin_id !== 'arami.crop'}
 			<div class="border-t border-gray-200/30 px-3 py-2 dark:border-gray-700/30">
 				<InlineParamControls
 					schema={d.schema}

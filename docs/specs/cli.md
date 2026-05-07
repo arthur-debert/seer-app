@@ -1,8 +1,8 @@
-# Seer CLI & Scripting Engine
+# Arami CLI & Scripting Engine
 
 ## Motivation
 
-Seer's core strength is its architecture: a declarative plugin system, a lightweight
+Arami's core strength is its architecture: a declarative plugin system, a lightweight
 serializable document model (`EditGraph`), and a pure evaluation function that takes a
 graph and source pixels and produces output pixels. The GUI is one consumer of this
 engine. But photographers and studios also need:
@@ -13,7 +13,7 @@ engine. But photographers and studios also need:
 - **Reproducibility**: a text-based, version-controllable representation of an editing
   pipeline that can be diffed, shared, and applied programmatically.
 - **Interoperability**: other tools (DAM systems, web services, custom scripts) should be
-  able to drive Seer's engine without a GUI.
+  able to drive Arami's engine without a GUI.
 
 A CLI is the natural first adapter. It should feel native to the shell, compose with
 Unix tools, and be generated from the same plugin schemas that drive the GUI.
@@ -26,8 +26,8 @@ Unix tools, and be generated from the same plugin schemas that drive the GUI.
 
 2. **The VersionTree is the pipe token.** Between pipe stages, what flows is not pixel
    data (too large, binary, meaningless without an encoder) but the serialized version
-   tree — the same structure persisted in `.seer` sidecar files. Each pipe stage creates
-   a version node, just like a GUI mutation. This means `seer save --sidecar` produces a
+   tree — the same structure persisted in `.arami` sidecar files. Each pipe stage creates
+   a version node, just like a GUI mutation. This means `arami save --sidecar` produces a
    proper sidecar with full editing history. Evaluation is lazy: only the final output
    command decodes the source image and runs the pipeline.
 
@@ -49,16 +49,16 @@ Unix tools, and be generated from the same plugin schemas that drive the GUI.
 ### Crate Structure
 
 ```
-seer-editor/            (existing, minor addition)
+arami-editor/            (existing, minor addition)
   src/session.rs        Session struct extracted from WASM bridge
 
-seer-cli/               (new crate, the CLI binary)
+arami-cli/               (new crate, the CLI binary)
   src/main.rs           entry point, dispatch
   src/cli_gen.rs        ParamSchema -> clap::Command generation
   src/pipe.rs           session JSON serialization, pipe detection
   src/commands/         open, save, inspect, apply, plugins, zone subcommands
 
-seer-editor-wasm/       (existing, refactored to delegate to Session)
+arami-editor-wasm/       (existing, refactored to delegate to Session)
 ```
 
 ### Session: The Shared Engine Entry Point
@@ -66,7 +66,7 @@ seer-editor-wasm/       (existing, refactored to delegate to Session)
 The WASM bridge currently composes the core types inline:
 
 ```rust
-// current: seer-editor-wasm/src/lib.rs
+// current: arami-editor-wasm/src/lib.rs
 pub struct EditGraph {
     versions: VersionTree,
     evaluator: PipelineEvaluator,
@@ -77,10 +77,10 @@ pub struct EditGraph {
 ```
 
 This struct is the engine's session, but it lives inside the WASM crate where only the
-browser can use it. The refactor extracts it into `seer-editor` as a first-class type:
+browser can use it. The refactor extracts it into `arami-editor` as a first-class type:
 
 ```rust
-// seer-editor/src/session.rs
+// arami-editor/src/session.rs
 pub struct Session {
     pub versions: VersionTree,
     pub evaluator: PipelineEvaluator,
@@ -96,7 +96,7 @@ impl Session {
     /// Create from a pre-decoded pixel buffer.
     pub fn from_buffer(buffer: PixelBuffer, path: &str) -> Self { ... }
 
-    /// Restore from a serialized VersionTree (e.g. .seer sidecar or pipe JSON).
+    /// Restore from a serialized VersionTree (e.g. .arami sidecar or pipe JSON).
     pub fn from_versions(versions: VersionTree, source_path: &str) -> Result<Self, SessionError> { ... }
 
     /// Add an adjustment node with validated parameters.
@@ -148,8 +148,8 @@ The JSON envelope piped between stages:
 ```
 
 - `v`: protocol version, for future compatibility.
-- `source`: absolute path to the source image file. Resolved at `seer open` time.
-- `versions`: the serialized `VersionTree`, identical in format to `.seer` sidecar
+- `source`: absolute path to the source image file. Resolved at `arami open` time.
+- `versions`: the serialized `VersionTree`, identical in format to `.arami` sidecar
   content. The current `EditGraph` is the head node's snapshot
   (`versions.nodes[head].snapshot`), so there is no separate `graph` field.
 
@@ -158,8 +158,8 @@ Each pipe stage creates one version node (e.g. "Add White Balance", "Add Crop").
 pipeable. No image data flows through the pipe.
 
 **Why lazy evaluation works:** The `EditGraph` stores the source file path, not the
-pixels. Intermediate commands (`seer white-balance`, `seer crop`, etc.) only manipulate
-the graph description. Only the terminal command (`seer save`) needs to load the image,
+pixels. Intermediate commands (`arami white-balance`, `arami crop`, etc.) only manipulate
+the graph description. Only the terminal command (`arami save`) needs to load the image,
 instantiate the registry, and run the evaluator. This keeps intermediate stages fast
 (~5ms per invocation for a Rust binary: parse args, read JSON, mutate, write JSON).
 
@@ -168,7 +168,7 @@ instantiate the registry, and run the evaluator. This keeps intermediate stages 
 ### Core Commands
 
 ```
-seer open <path>
+arami open <path>
 ```
 
 Create a new session from a source image. Detects the file type, sets the source phase,
@@ -176,7 +176,7 @@ initializes an empty pipeline. Outputs session JSON if stdout is a pipe; prints 
 metadata if stdout is a terminal.
 
 ```
-seer save <path> [--quality N] [--format png|jpg|tiff] [--sidecar]
+arami save <path> [--quality N] [--format png|jpg|tiff] [--sidecar]
 ```
 
 Evaluate the pipeline and write the result. Reads session from stdin. Decodes the source
@@ -184,12 +184,12 @@ image, runs the full pipeline, encodes the output. Prints a summary to stderr
 (`Wrote result.jpg (2400x1600, 1.2 MB, 3 adjustments)`). If the output path is `-`,
 writes encoded bytes to stdout (opt-in for further piping to tools like `convert`).
 
-With `--sidecar`, also writes a `.seer` file alongside the output containing the full
+With `--sidecar`, also writes a `.arami` file alongside the output containing the full
 `VersionTree` with editing history. This produces the same sidecar format that the GUI
 creates, enabling round-trip: edit via CLI, refine in GUI, re-apply via CLI.
 
 ```
-seer inspect [--json]
+arami inspect [--json]
 ```
 
 Pretty-print the current pipeline state. Reads session from stdin, prints the pipeline
@@ -198,14 +198,14 @@ session JSON to stdout unchanged. This means `inspect` can be inserted anywhere 
 pipe chain for debugging without breaking the flow.
 
 ```
-seer plugins [<plugin-id>]
+arami plugins [<plugin-id>]
 ```
 
 Without arguments: list all registered plugins with their IDs, names, and categories.
 With a plugin ID: print the full parameter schema (names, types, ranges, defaults).
 
 ```
-seer presets [<plugin-id>]
+arami presets [<plugin-id>]
 ```
 
 Without arguments: list all available presets across all plugins. With a plugin ID: list
@@ -213,29 +213,29 @@ presets for that plugin, showing the preset name and a one-line description. See
 Presets section below for details.
 
 ```
-seer apply <sidecar.seer> [--source <path>] [-o <path>]
+arami apply <sidecar.arami> [--source <path>] [-o <path>]
 ```
 
-Apply a `.seer` sidecar to an image. If `--source` is omitted, uses the source path
+Apply a `.arami` sidecar to an image. If `--source` is omitted, uses the source path
 stored in the sidecar. This is the bridge between GUI and CLI: edit in the GUI, apply
 the same edits to other images from the command line.
 
 ### Plugin Commands (Auto-Generated)
 
 Every registered plugin becomes a subcommand. The name is derived from the plugin ID
-by stripping the `seer.` prefix and the phase prefix:
+by stripping the `arami.` prefix and the phase prefix:
 
-| Plugin ID            | CLI Command          |
-| -------------------- | -------------------- |
-| `seer.crop`          | `seer crop`          |
-| `seer.white-balance` | `seer white-balance` |
-| `seer.tone-curve`    | `seer tone-curve`    |
-| `seer.monochrome`    | `seer monochrome`    |
-| `seer.clahe`         | `seer clahe`         |
-| `seer.color-mixer`   | `seer color-mixer`   |
-| `seer.denoise`       | `seer denoise`       |
-| `seer.sharpen`       | `seer sharpen`       |
-| `seer.clarity`       | `seer clarity`       |
+| Plugin ID             | CLI Command           |
+| --------------------- | --------------------- |
+| `arami.crop`          | `arami crop`          |
+| `arami.white-balance` | `arami white-balance` |
+| `arami.tone-curve`    | `arami tone-curve`    |
+| `arami.monochrome`    | `arami monochrome`    |
+| `arami.clahe`         | `arami clahe`         |
+| `arami.color-mixer`   | `arami color-mixer`   |
+| `arami.denoise`       | `arami denoise`       |
+| `arami.sharpen`       | `arami sharpen`       |
+| `arami.clarity`       | `arami clarity`       |
 
 Each subcommand accepts `--<param_id>` flags generated from the plugin's `ParamSchema`.
 Parameters not specified on the command line use the schema's defaults.
@@ -271,11 +271,11 @@ parameter name, expected range, and actual value.
 ### Zone Commands
 
 ```
-seer zone luminance --low 0.6 --high 1.0 [--feather 0.1] --name <name>
-seer zone color-range --hue 200 --hue-range 30 --name <name>
-seer zone gradient --kind linear --start-x 0 --start-y 0 --end-x 0 --end-y 1 --name <name>
-seer zone compose --op union|intersect|subtract --left <name> --right <name> --name <name>
-seer zone invert --source <name> --name <name>
+arami zone luminance --low 0.6 --high 1.0 [--feather 0.1] --name <name>
+arami zone color-range --hue 200 --hue-range 30 --name <name>
+arami zone gradient --kind linear --start-x 0 --start-y 0 --end-x 0 --end-y 1 --name <name>
+arami zone compose --op union|intersect|subtract --left <name> --right <name> --name <name>
+arami zone invert --source <name> --name <name>
 ```
 
 Zone commands add zone generators or compositions to the graph's zone phase. The
@@ -284,7 +284,7 @@ Zone commands add zone generators or compositions to the graph's zone phase. The
 Zone generator subcommands are auto-generated from `ZoneGeneratorPlugin` schemas, just
 like adjustment subcommands. Brush and segmentation zones are omitted from the CLI
 (brush requires interactive painting; segmentation requires model inference) but their
-results can be referenced from `.seer` sidecars created in the GUI.
+results can be referenced from `.arami` sidecars created in the GUI.
 
 ## CLI Generation: ParamSchema to clap
 
@@ -293,8 +293,8 @@ The `cli_gen` module walks the `PluginRegistry` at startup and builds the full
 
 ```rust
 pub fn build_cli(registry: &PluginRegistry) -> clap::Command {
-    let mut root = clap::Command::new("seer")
-        .about("Seer image processing pipeline")
+    let mut root = clap::Command::new("arami")
+        .about("Arami image processing pipeline")
         .subcommand(cmd_open())
         .subcommand(cmd_save())
         .subcommand(cmd_inspect())
@@ -313,7 +313,7 @@ pub fn build_cli(registry: &PluginRegistry) -> clap::Command {
         // Every adjustment gets --preset
         sub = sub.arg(
             Arg::new("preset").long("preset")
-                .help("Named parameter preset (see `seer presets`)")
+                .help("Named parameter preset (see `arami presets`)")
         );
         if plugin.accepts_zone() {
             sub = sub.arg(
@@ -332,7 +332,7 @@ pub fn build_cli(registry: &PluginRegistry) -> clap::Command {
 }
 
 fn plugin_to_subcommand(id: &str, plugin: &dyn AdjustmentPlugin) -> clap::Command {
-    let name = id.strip_prefix("seer.").unwrap_or(id);
+    let name = id.strip_prefix("arami.").unwrap_or(id);
     let schema = plugin.describe();
     let mut cmd = clap::Command::new(name).about(plugin.name());
 
@@ -376,7 +376,7 @@ Parameter validation is centralized, not per-frontend. The flow:
 
 1. CLI parses raw strings into typed values using `clap` + schema-driven parsers.
 2. Values are assembled into a `ParamValues` map.
-3. A shared `validate_params(schema, values)` function in `seer-editor` checks ranges,
+3. A shared `validate_params(schema, values)` function in `arami-editor` checks ranges,
    required parameters, and type correctness.
 4. On success, the graph is mutated. On failure, a structured error names the parameter,
    the constraint, and the offending value.
@@ -393,7 +393,7 @@ operations and provide discoverable starting points for complex parameters like 
 
 When `--preset <name>` is specified, the CLI resolves it in order:
 
-1. **User presets**: `~/.config/seer/presets/<plugin-name>/<name>.json`
+1. **User presets**: `~/.config/arami/presets/<plugin-name>/<name>.json`
 2. **Built-in presets**: compiled into the binary, shipped with the CLI.
 
 User presets shadow built-in presets of the same name, allowing customization.
@@ -441,9 +441,9 @@ shortcuts that generalize across all plugins and all parameter types.
 ### Discovery
 
 ```bash
-seer presets                     # list all presets across all plugins
-seer presets tone-curve          # list presets for tone-curve
-seer plugins tone-curve          # show full parameter schema (for manual values)
+arami presets                     # list all presets across all plugins
+arami presets tone-curve          # list presets for tone-curve
+arami plugins tone-curve          # show full parameter schema (for manual values)
 ```
 
 ## Inline Zones
@@ -451,14 +451,14 @@ seer plugins tone-curve          # show full parameter schema (for manual values
 For one-off regional edits, defining a named zone in a separate pipe stage is verbose:
 
 ```bash
-seer zone luminance --low 0.7 --high 1.0 --name highlights \
-  | seer tone-curve --highlights -25 --zone highlights
+arami zone luminance --low 0.7 --high 1.0 --name highlights \
+  | arami tone-curve --highlights -25 --zone highlights
 ```
 
 The `--zone-inline` flag creates an anonymous zone directly on the adjustment command:
 
 ```bash
-seer tone-curve --highlights -25 --zone-inline luminance:low=0.7,high=1.0
+arami tone-curve --highlights -25 --zone-inline luminance:low=0.7,high=1.0
 ```
 
 ### Syntax
@@ -467,7 +467,7 @@ seer tone-curve --highlights -25 --zone-inline luminance:low=0.7,high=1.0
 --zone-inline <generator-type>:<param=value,...>
 ```
 
-The generator type is the zone plugin name (the same names used with `seer zone`). The
+The generator type is the zone plugin name (the same names used with `arami zone`). The
 parameters use `key=value` pairs separated by commas, matching the plugin's
 `ParamSchema` parameter IDs. Omitted parameters use schema defaults.
 
@@ -487,12 +487,12 @@ parameters use `key=value` pairs separated by commas, matching the plugin's
 The CLI parses the inline spec, creates an anonymous `ZoneEntry::Generator` in the
 graph's zone phase (with an auto-generated name like `_inline_1`), and sets the
 adjustment's `ZoneSource::Ref` to it. The anonymous zone is a normal graph entry — it
-appears in `seer inspect` output and is preserved in sidecar files.
+appears in `arami inspect` output and is preserved in sidecar files.
 
 ### Limitations
 
 Inline zones cover the simple single-generator case. For compositions (intersect two
-zones, invert, subtract), use explicit `seer zone` commands to define named zones.
+zones, invert, subtract), use explicit `arami zone` commands to define named zones.
 `--zone-inline` and `--zone` are mutually exclusive on the same command.
 
 ## Examples
@@ -500,45 +500,45 @@ zones, invert, subtract), use explicit `seer zone` commands to define named zone
 ### Basic editing pipeline
 
 ```bash
-seer open photo.dng \
-  | seer crop --x 100 --y 50 --width 1800 --height 1200 \
-  | seer white-balance --temperature 5800 \
-  | seer tone-curve --shadows 15 --highlights -10 \
-  | seer clarity --amount 0.3 \
-  | seer save result.jpg --quality 92
+arami open photo.dng \
+  | arami crop --x 100 --y 50 --width 1800 --height 1200 \
+  | arami white-balance --temperature 5800 \
+  | arami tone-curve --shadows 15 --highlights -10 \
+  | arami clarity --amount 0.3 \
+  | arami save result.jpg --quality 92
 ```
 
 ### Presets and inline zones
 
 ```bash
 # Preset provides named parameter sets — no need to memorize numeric values
-seer open photo.dng \
-  | seer white-balance --preset tungsten \
-  | seer tone-curve --preset s-curve-gentle \
-  | seer save result.jpg --quality 92
+arami open photo.dng \
+  | arami white-balance --preset tungsten \
+  | arami tone-curve --preset s-curve-gentle \
+  | arami save result.jpg --quality 92
 
 # Inline zone for one-off regional edit (no separate zone command needed)
-seer open landscape.dng \
-  | seer tone-curve --highlights -25 --zone-inline luminance:low=0.7,high=1.0 \
-  | seer save landscape-edited.jpg
+arami open landscape.dng \
+  | arami tone-curve --highlights -25 --zone-inline luminance:low=0.7,high=1.0 \
+  | arami save landscape-edited.jpg
 
 # Preset + override: start from preset, tweak one param
-seer open photo.dng \
-  | seer white-balance --preset cloudy --tint 0.1 \
-  | seer save result.jpg
+arami open photo.dng \
+  | arami white-balance --preset cloudy --tint 0.1 \
+  | arami save result.jpg
 ```
 
 ### Zone-based selective editing
 
 ```bash
 # Composed zones for complex targeting (use named zones when reusing or composing)
-seer open landscape.dng \
-  | seer zone luminance --low 0.7 --high 1.0 --feather 0.15 --name highlights \
-  | seer zone gradient --kind linear --start-y 0 --end-y 0.4 --name sky-grad \
-  | seer zone compose --op intersect --left highlights --right sky-grad --name bright-sky \
-  | seer tone-curve --highlights -25 --zone bright-sky \
-  | seer white-balance --temperature 5200 \
-  | seer save landscape-edited.jpg --quality 95
+arami open landscape.dng \
+  | arami zone luminance --low 0.7 --high 1.0 --feather 0.15 --name highlights \
+  | arami zone gradient --kind linear --start-y 0 --end-y 0.4 --name sky-grad \
+  | arami zone compose --op intersect --left highlights --right sky-grad --name bright-sky \
+  | arami tone-curve --highlights -25 --zone bright-sky \
+  | arami white-balance --temperature 5200 \
+  | arami save landscape-edited.jpg --quality 95
 ```
 
 ### Batch processing with shell tools
@@ -546,38 +546,38 @@ seer open landscape.dng \
 ```bash
 # Apply the same edits to every DNG in a folder
 for f in raw/*.dng; do
-  seer open "$f" \
-    | seer white-balance --temperature 7200 \
-    | seer monochrome --strength 0.9 \
-    | seer save "output/$(basename "${f%.dng}.jpg")" --quality 90
+  arami open "$f" \
+    | arami white-balance --temperature 7200 \
+    | arami monochrome --strength 0.9 \
+    | arami save "output/$(basename "${f%.dng}.jpg")" --quality 90
 done
 ```
 
 ```bash
 # Parallel batch with GNU parallel
 find raw/ -name '*.dng' | parallel -j4 \
-  'seer open {} | seer white-balance --temperature 7200 | seer save output/{/.}.jpg'
+  'arami open {} | arami white-balance --temperature 7200 | arami save output/{/.}.jpg'
 ```
 
 ### Apply GUI edits to other images
 
 ```bash
-# The photographer edits one image in the GUI, producing photo-001.seer
+# The photographer edits one image in the GUI, producing photo-001.arami
 # Apply those same edits to the rest of the series
 for f in photo-{002..050}.dng; do
-  seer apply photo-001.seer --source "$f" -o "edited/${f%.dng}.jpg"
+  arami apply photo-001.arami --source "$f" -o "edited/${f%.dng}.jpg"
 done
 ```
 
 ### Debugging a pipeline
 
 ```bash
-seer open photo.dng \
-  | seer white-balance --temperature 7500 \
-  | seer inspect \
-  | seer monochrome --strength 0.8 \
-  | seer inspect \
-  | seer save result.jpg
+arami open photo.dng \
+  | arami white-balance --temperature 7500 \
+  | arami inspect \
+  | arami monochrome --strength 0.8 \
+  | arami inspect \
+  | arami save result.jpg
 ```
 
 `inspect` prints the pipeline state to stderr at each point, while forwarding the
@@ -585,27 +585,27 @@ session JSON through stdout. Output on stderr:
 
 ```
 Pipeline (2 nodes):
-  1. [crop]           seer.crop            x=100 y=50 w=1800 h=1200
-  2. [white-balance]  seer.white-balance   temperature=7500 tint=0
+  1. [crop]           arami.crop            x=100 y=50 w=1800 h=1200
+  2. [white-balance]  arami.white-balance   temperature=7500 tint=0
 
 Pipeline (3 nodes):
-  1. [crop]           seer.crop            x=100 y=50 w=1800 h=1200
-  2. [white-balance]  seer.white-balance   temperature=7500 tint=0
-  3. [monochrome]     seer.monochrome      strength=0.8 ...
+  1. [crop]           arami.crop            x=100 y=50 w=1800 h=1200
+  2. [white-balance]  arami.white-balance   temperature=7500 tint=0
+  3. [monochrome]     arami.monochrome      strength=0.8 ...
 ```
 
 ### Saving sidecars for GUI round-trip
 
 ```bash
 # Edit via CLI, produce a sidecar with full version history
-seer open photo.dng \
-  | seer white-balance --temperature 7500 \
-  | seer tone-curve --preset s-curve-gentle \
-  | seer save result.jpg --sidecar
-# Writes result.jpg AND result.seer (with 3 version nodes: open, WB, curve)
+arami open photo.dng \
+  | arami white-balance --temperature 7500 \
+  | arami tone-curve --preset s-curve-gentle \
+  | arami save result.jpg --sidecar
+# Writes result.jpg AND result.arami (with 3 version nodes: open, WB, curve)
 
-# Later: open result.seer in the GUI, refine, then re-apply via CLI
-seer apply result.seer --source photo.dng -o final.jpg
+# Later: open result.arami in the GUI, refine, then re-apply via CLI
+arami apply result.arami --source photo.dng -o final.jpg
 ```
 
 ### Composing with jq
@@ -614,13 +614,13 @@ Since the pipe token is JSON, standard JSON tools work:
 
 ```bash
 # Extract the current version tree as JSON for external processing
-seer open photo.dng \
-  | seer white-balance --temperature 7500 \
+arami open photo.dng \
+  | arami white-balance --temperature 7500 \
   | jq '.versions'
 
 # Inspect just the current graph state
-seer open photo.dng \
-  | seer white-balance --temperature 7500 \
+arami open photo.dng \
+  | arami white-balance --temperature 7500 \
   | jq '.versions.nodes[.versions.head].snapshot'
 ```
 
@@ -628,18 +628,18 @@ seer open photo.dng \
 
 ### Phase 2: Watch Mode and Bulk Apply
 
-**Watch mode.** A `seer watch photo.dng` command that spawns a lightweight window
+**Watch mode.** A `arami watch photo.dng` command that spawns a lightweight window
 (using winit + wgpu or Tauri webview) and listens to EditGraph changes via stdin or a
 socket. The user tweaks parameters via piped CLI commands and sees the result rendered on
 GPU in real time, without discrete save/open cycles.
 
-**Bulk apply.** Extend `seer apply` to accept directories as input:
+**Bulk apply.** Extend `arami apply` to accept directories as input:
 
 ```bash
-seer apply photo-001.seer --input raw/ --output edited/
+arami apply photo-001.arami --input raw/ --output edited/
 ```
 
-In this mode, seer handles iterating over supported file types, dispatching to the
+In this mode, arami handles iterating over supported file types, dispatching to the
 engine with rayon-based parallelism. This is faster and more portable than shell loops
 with GNU parallel, and friendlier for Windows users (cmd/PowerShell).
 
@@ -649,26 +649,26 @@ For batch workloads where per-invocation image decoding is a bottleneck, an auto
 daemon avoids redundant work. Design follows the ssh-agent pattern:
 
 ```bash
-# Auto-start: first piped command starts the daemon if SEER_SOCK is unset
+# Auto-start: first piped command starts the daemon if ARAMI_SOCK is unset
 # Explicit start also supported:
-eval $(seer daemon start)
-# Sets SEER_SOCK=/tmp/seer-XXXX.sock and SEER_PID=NNNNN
+eval $(arami daemon start)
+# Sets ARAMI_SOCK=/tmp/arami-XXXX.sock and ARAMI_PID=NNNNN
 
-# Commands detect SEER_SOCK and become thin clients:
+# Commands detect ARAMI_SOCK and become thin clients:
 # instead of JSON-pipe mode, each connects to the socket,
 # sends its operation, and the daemon holds state in memory.
-seer open photo.dng | seer white-balance --temperature 7500 | seer save result.jpg
+arami open photo.dng | arami white-balance --temperature 7500 | arami save result.jpg
 
 # Daemon auto-exits after idle timeout (default: 2 minutes)
 # Or explicit:
-seer daemon stop
+arami daemon stop
 ```
 
 The daemon holds decoded `PixelBuffer` instances in an LRU cache, the `PluginRegistry`,
 and optionally the SegFormer ONNX model. This eliminates per-image decode overhead for
 batch operations on the same source.
 
-The CLI interface does not change. When `SEER_SOCK` is set, commands connect to the
+The CLI interface does not change. When `ARAMI_SOCK` is set, commands connect to the
 daemon instead of doing JSON-pipe mode. Same commands, same flags, different execution
 strategy.
 
@@ -680,17 +680,17 @@ allowing concurrent processing of different images.
 
 For automation that exceeds what shell scripting offers (typed variables, conditionals
 over image metadata, plugin-aware loops), an embedded scripting language provides a
-richer environment without leaving the Seer ecosystem.
+richer environment without leaving the Arami ecosystem.
 
 Rhai is the candidate: it embeds naturally in Rust, is sandboxed by default, supports
 WASM, and has familiar syntax.
 
 ```rhai
-// seer script process-portfolio.rhai
-let files = seer::glob("raw/*.dng");
+// arami script process-portfolio.rhai
+let files = arami::glob("raw/*.dng");
 
 for path in files {
-    let s = seer::open(path);
+    let s = arami::open(path);
 
     s.white_balance(temperature: 6500);
 
@@ -718,17 +718,17 @@ document.
 
 The CLI design does not introduce new concepts. It reuses what exists:
 
-| CLI Concept          | Existing Architecture Equivalent                     |
-| -------------------- | ---------------------------------------------------- |
-| Session              | WASM bridge's EditGraph struct (to be extracted)     |
-| Pipe JSON            | `.seer` sidecar format (same serialized VersionTree) |
-| Plugin subcommands   | `PluginRegistry` iteration + `ParamSchema`           |
-| Parameter validation | Same `ParamSchema` constraints used by GUI           |
-| Zone names           | `ZoneEntry` names in `ZonePhase`                     |
-| Inline zones         | Anonymous `ZoneEntry::Generator` in `ZonePhase`      |
-| Presets              | Partial `ParamValues` files (CLI-layer convenience)  |
-| Evaluation           | `PipelineEvaluator::evaluate()`                      |
-| `seer apply`         | Sidecar deserialization (existing in versioning)     |
+| CLI Concept          | Existing Architecture Equivalent                      |
+| -------------------- | ----------------------------------------------------- |
+| Session              | WASM bridge's EditGraph struct (to be extracted)      |
+| Pipe JSON            | `.arami` sidecar format (same serialized VersionTree) |
+| Plugin subcommands   | `PluginRegistry` iteration + `ParamSchema`            |
+| Parameter validation | Same `ParamSchema` constraints used by GUI            |
+| Zone names           | `ZoneEntry` names in `ZonePhase`                      |
+| Inline zones         | Anonymous `ZoneEntry::Generator` in `ZonePhase`       |
+| Presets              | Partial `ParamValues` files (CLI-layer convenience)   |
+| Evaluation           | `PipelineEvaluator::evaluate()`                       |
+| `arami apply`        | Sidecar deserialization (existing in versioning)      |
 
 The new code is translation: shell arguments to `ParamValues`, session JSON
 serialization, pipe detection, preset resolution, and inline zone parsing. The engine,

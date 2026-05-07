@@ -1,8 +1,8 @@
-# Seer — Technical Overview
+# Arami — Technical Overview
 
-Seer is a suite of tools for photographers, built primarily in Rust.
+Arami is a suite of tools for photographers, built primarily in Rust.
 This document covers the architectural principles and technical stack shared
-across all Seer tools (Editor, Mirrors, Framer).
+across all Arami tools (Editor, Mirrors, Framer).
 
 See [README.md](README.md) for the project vision and vocabulary.
 
@@ -33,7 +33,7 @@ Why this matters:
 The frontend framework is the thinnest, most replaceable layer. Rust decides
 what happens; TypeScript decides when and how to present it. Concretely:
 
-| Rust (seer-editor, seer-viewer)                     | TypeScript (Svelte)                         |
+| Rust (arami-editor, arami-viewer)                   | TypeScript (Svelte)                         |
 | --------------------------------------------------- | ------------------------------------------- |
 | All math: zoom, pan, layout, clamping, anchoring    | DOM event capture, forwarding deltas        |
 | Pipeline evaluation, adjustment processing, history | UI chrome: toolbars, panels, settings       |
@@ -90,7 +90,7 @@ async model.
 
 ## Sync Model (Future)
 
-Seer targets a local-first, offline-first architecture. The typical
+Arami targets a local-first, offline-first architecture. The typical
 scenario is one photographer across multiple devices, occasionally sharing
 with an editor or client.
 
@@ -217,7 +217,7 @@ thinnest, most replaceable layer.
 ```
 src-tauri/
 +-- Cargo.toml              (workspace root)
-+-- seer-editor/             Pure Rust image processing pipeline
++-- arami-editor/             Pure Rust image processing pipeline
 |   +-- src/
 |       +-- graph/          EditGraph: 5-phase document model
 |       |   +-- mod.rs          EditGraph struct and cross-phase operations
@@ -239,15 +239,15 @@ src-tauri/
 |       +-- plugins/        Built-in adjustment, geometry, source, and output plugins
 |       +-- zone_plugins/   5 zone generator plugins
 |       +-- processing/     Per-plugin processing functions
-+-- seer-editor-wasm/             WASM bridge for seer-editor
-+-- seer-viewer/           Pure geometry/viewport math
++-- arami-editor-wasm/             WASM bridge for arami-editor
++-- arami-viewer/           Pure geometry/viewport math
 |   +-- src/
 |       +-- geometry.rs     Point, Size, Rect
 |       +-- viewport.rs     DisplayMode, ViewLayout, contain-fit
 |       +-- viewer.rs       ViewerState, zoom/pan Layer 1+2
 |       +-- framer.rs       FramerState, crop Layer 1+2
 |       +-- render_config.rs SamplingFilter, RenderConfig
-+-- seer-viewer-wasm/           WASM bridge for seer-viewer
++-- arami-viewer-wasm/           WASM bridge for arami-viewer
 ```
 
 Each `-core` crate is pure Rust with no WASM dependencies. Each `-wasm` crate

@@ -1,4 +1,4 @@
-# Seer Extensibility Design
+# Arami Extensibility Design
 
 ## Premise
 
@@ -8,7 +8,7 @@ novel demosaicing algorithms, AI-powered retouching, specialized storage integra
 niche output formats — because the only way to deliver them is to build an entire
 editing application around them.
 
-Seer's workflow scaffold — pipeline sequencing, zone-based selective editing, version
+Arami's workflow scaffold — pipeline sequencing, zone-based selective editing, version
 history, async evaluation, responsive UI — has significant standalone value. If third
 parties can plug into this scaffold at well-defined points, distributing image
 processing ideas becomes dramatically easier.
@@ -109,7 +109,7 @@ ICC profile embedding, contact sheet generation, web gallery export.
 
 ### 5. Storage Backends
 
-Blob storage abstraction. Seer's image catalog can read from and write to
+Blob storage abstraction. Arami's image catalog can read from and write to
 arbitrary storage systems.
 
 **Examples**: local filesystem (built-in), S3-compatible object storage, Google
@@ -197,7 +197,7 @@ of runtime matters.
 
 ### The Pragmatic Architecture: WASM-Primary, Not WASM-Only
 
-**WASM is the primary runtime** — for the same reasons listed before (Seer
+**WASM is the primary runtime** — for the same reasons listed before (Arami
 already lives in WASM, cross-platform binaries, ecosystem momentum). But we
 acknowledge two things:
 
@@ -217,12 +217,12 @@ The architecture supports **three execution modes**, hidden behind the same
 
 | Mode                         | When                                  | Overhead                    | Isolation       | Plugin author writes  |
 | ---------------------------- | ------------------------------------- | --------------------------- | --------------- | --------------------- |
-| **Native (compiled-in)**     | Core seer.\* adjustments              | Zero                        | Full trust      | Rust, same repo       |
+| **Native (compiled-in)**     | Core arami.\* adjustments             | Zero                        | Full trust      | Rust, same repo       |
 | **WASM (in-process)**        | Default for third-party               | ~1.1x on ARM, ~1.5x on x86  | Memory sandbox  | Rust/C/C++ → .wasm    |
 | **Process (out-of-process)** | Escape hatch for heavy/native plugins | ~5 us signal + native speed | Process sandbox | Any language → binary |
 
 The third mode (process isolation) is the "C research paper" answer. A plugin
-ships as a native binary instead of `.wasm`. Seer spawns it as a child process,
+ships as a native binary instead of `.wasm`. Arami spawns it as a child process,
 maps shared memory for pixel data exchange (zero-copy on both macOS and Linux),
 and applies OS-level sandboxing (`sandbox-exec` on macOS, `seccomp-bpf` +
 namespaces on Linux). The plugin reads pixels from shared memory, writes output,
@@ -237,21 +237,21 @@ process mode exists for specific needs, not as the default.
 The user-facing trust model is a **layered curation system**, independent of
 the runtime:
 
-**Tier 1: Seer Core** (`seer.*`)
+**Tier 1: Arami Core** (`arami.*`)
 
-- Ships with Seer. Tested as part of CI. Fully trusted. No installation.
+- Ships with Arami. Tested as part of CI. Fully trusted. No installation.
 - These are the built-in adjustments, zones, decoders.
 
 **Tier 2: Verified** (`verified.*`)
 
-- Reviewed by Seer team or trusted reviewers.
+- Reviewed by Arami team or trusted reviewers.
 - Passes automated test suite (see Plugin Test Harness below).
-- Listed in the Seer plugin directory with a "Verified" badge.
+- Listed in the Arami plugin directory with a "Verified" badge.
 - User sees: "This plugin has been reviewed and tested."
 
 **Tier 3: Community** (`contrib.*`)
 
-- Published by community members. Not reviewed by Seer team.
+- Published by community members. Not reviewed by Arami team.
 - Must pass automated test harness (determinism, no NaN, dimensions preserved,
   reasonable output range, completes within timeout).
 - User reviews and ratings visible.
@@ -285,7 +285,7 @@ before being listed in any tier above Local:
 ```
 
 The harness runs automatically on submission to the plugin directory. Plugin
-authors can run it locally via `seer-sdk test`. Failed tests produce clear
+authors can run it locally via `arami-sdk test`. Failed tests produce clear
 diagnostics ("test 3 failed: output is 1920x1080 but input was 6000x4000").
 
 This is the real safety net. A WASM plugin that passes all 8 tests is trustworthy
@@ -325,7 +325,7 @@ directly. For process-isolated plugins, it defines the shared-memory message
 schema:
 
 ```wit
-package seer:plugin@1.0.0;
+package arami:plugin@1.0.0;
 
 /// The core pixel buffer type passed between host and plugins.
 /// Data is f32 RGB interleaved, row-major. Length = width * height * 3.
@@ -452,7 +452,7 @@ The most impactful design decision for the extensibility UX. Inspired by OpenFX'
 parameter negotiation and GEGL's automatic dialog generation: **plugins declare
 parameters, the host generates all UI**.
 
-Plugin authors never write UI code. They describe what they need, and Seer renders
+Plugin authors never write UI code. They describe what they need, and Arami renders
 professional, consistent controls — sliders, dropdowns, curve editors, color
 pickers — that match the rest of the application.
 
@@ -609,7 +609,7 @@ variant param-value {
    - `bool-param` → toggle switch
    - `choice-param` → dropdown (many options) or button group (2–4 options)
    - `color-param` → color well + color picker popover
-   - `curve-param` → CurveEditor component (reusing Seer's built-in)
+   - `curve-param` → CurveEditor component (reusing Arami's built-in)
    - `point-param` / `rect-param` / `path-param` → host intercepts spatial interactions on the `<canvas>`, converts to normalized `[0.0, 1.0]` coordinates.
 3. User interacts → host validates value (clamp to range, coerce type)
 4. Host debounces via rAF coalescing (same as built-in adjustments)
@@ -618,7 +618,7 @@ variant param-value {
 The plugin author's experience:
 
 ```rust
-use seer_sdk::*;
+use arami_sdk::*;
 
 #[derive(Params)]
 struct FilmEmulationParams {
@@ -653,7 +653,7 @@ struct FilmEmulationParams {
     curve: Curve,
 }
 
-#[seer_plugin(
+#[arami_plugin(
     id = "com.filmdev.emulation",
     name = "Film Emulation",
     category = "creative",
@@ -684,10 +684,10 @@ impl Adjustment for FilmEmulation {
 ```
 
 This compiles to a single `.wasm` file. The `#[derive(Params)]` macro generates
-the `describe()` implementation. The `#[seer_plugin]` macro generates the WASM
+the `describe()` implementation. The `#[arami_plugin]` macro generates the WASM
 entry points and plugin manifest.
 
-The resulting UI in Seer — with no UI code from the plugin author:
+The resulting UI in Arami — with no UI code from the plugin author:
 
 ```
 ┌─ Film Emulation ──────────────────────┐
@@ -717,7 +717,7 @@ The resulting UI in Seer — with no UI code from the plugin author:
 
 ### What This Means for the Host
 
-The host (Seer's Svelte frontend) replaces the current per-adjustment `{#if}`
+The host (Arami's Svelte frontend) replaces the current per-adjustment `{#if}`
 chain in `ParamPanel.svelte` with a generic schema renderer:
 
 ```
@@ -776,7 +776,7 @@ Plugins that want semantic awareness can query the class map:
 ```wit
 /// Query which ADE20K class a pixel belongs to.
 /// Returns class ID (0–149) or none if no class map available.
-import seer:host/classmap.{
+import arami:host/classmap.{
     has-classmap: func() -> bool,
     class-at: func(x: u32, y: u32) -> option<u8>,
     class-name: func(id: u8) -> string,
@@ -797,7 +797,7 @@ For heavy workloads (e.g., AI denoising) that take several seconds, plugins shou
 
 ```wit
 /// Report execution progress back to the host.
-import seer:host/progress.{
+import arami:host/progress.{
     /// Emit progress (0.0 to 1.0)
     report-progress: func(percent: float32),
 }
@@ -808,7 +808,7 @@ import seer:host/progress.{
 Bundling entire ML runtimes (ONNX/TensorFlow) and duplicate model weights into individual plugins creates massive bloat. Instead, plugins can offload tensor operations to the host's native, GPU-accelerated ML stack:
 
 ```wit
-import seer:host/inference.{
+import arami:host/inference.{
     /// Load a model from a plugin's resources or remote URL.
     /// Returns an opaque handle.
     load-model: func(path: string) -> u32,
@@ -829,7 +829,7 @@ tables):
 ```wit
 /// Read a resource bundled with the plugin.
 /// Resources are files in the plugin's package, read-only.
-import seer:host/resources.{
+import arami:host/resources.{
     read-resource: func(path: string) -> result<list<u8>, string>,
     resource-exists: func(path: string) -> bool,
 }
@@ -838,7 +838,7 @@ import seer:host/resources.{
 Plugin packages are zip archives containing:
 
 ```
-com.filmdev.emulation-1.2.0.seerplugin
+com.filmdev.emulation-1.2.0.aramiplugin
 ├── plugin.wasm          (compiled WASM binary)
 ├── manifest.toml        (metadata)
 ├── resources/
@@ -853,22 +853,22 @@ com.filmdev.emulation-1.2.0.seerplugin
 
 ---
 
-## Plugin Development Kit (seer-sdk)
+## Plugin Development Kit (arami-sdk)
 
-A Rust crate that makes writing Seer plugins ergonomic. Published to crates.io,
+A Rust crate that makes writing Arami plugins ergonomic. Published to crates.io,
 usable by anyone.
 
 ### Core Components
 
 ```
-seer-sdk/
+arami-sdk/
 ├── src/
 │   ├── lib.rs            — Re-exports, top-level docs
 │   ├── pixel_buffer.rs   — PixelBuffer type + utility methods
 │   ├── zone_buffer.rs    — ZoneBuffer type
 │   ├── params.rs         — Parameter schema types
 │   ├── context.rs        — AdjustmentContext, ZoneContext types
-│   ├── macros.rs         — #[derive(Params)], #[seer_plugin]
+│   ├── macros.rs         — #[derive(Params)], #[arami_plugin]
 │   └── helpers/
 │       ├── color.rs      — Color space conversions (sRGB↔linear, XYZ, Lab, HSL)
 │       ├── convolution.rs — Gaussian blur, box blur, custom kernels
@@ -884,10 +884,10 @@ seer-sdk/
 
 ### Helper Library Highlights
 
-**Color space conversions** (matching seer-editor's built-in math):
+**Color space conversions** (matching arami-editor's built-in math):
 
 ```rust
-use seer_sdk::helpers::color;
+use arami_sdk::helpers::color;
 
 let linear = color::srgb_to_linear(srgb_value);
 let xyz = color::linear_to_xyz(linear);
@@ -898,7 +898,7 @@ let hsl = color::srgb_to_hsl(srgb_value);
 **Convolution** (common for detail adjustments):
 
 ```rust
-use seer_sdk::helpers::convolution;
+use arami_sdk::helpers::convolution;
 
 let blurred = convolution::gaussian_blur(input, sigma);
 let sharpened = convolution::unsharp_mask(input, radius, amount, threshold);
@@ -908,7 +908,7 @@ let edges = convolution::sobel(input);
 **LUT application** (common for film emulation):
 
 ```rust
-use seer_sdk::helpers::lut;
+use arami_sdk::helpers::lut;
 
 let cube = lut::load_cube_lut(resource_bytes)?;
 let output = lut::apply_3d_lut(input, &cube, intensity);
@@ -917,7 +917,7 @@ let output = lut::apply_3d_lut(input, &cube, intensity);
 **Pixel iteration** (ergonomic access patterns):
 
 ```rust
-use seer_sdk::pixel_buffer::PixelBuffer;
+use arami_sdk::pixel_buffer::PixelBuffer;
 
 let mut output = input.clone();
 output.for_each_pixel_mut(|x, y, r, g, b| {
@@ -936,7 +936,7 @@ let output = input.map_pixels(|x, y, r, g, b| {
 ### Testing Utilities
 
 ```rust
-use seer_sdk::testing::*;
+use arami_sdk::testing::*;
 
 #[test]
 fn test_identity() {
@@ -968,7 +968,7 @@ fn test_non_destructive() {
 ### Current State
 
 Today, adjustments are defined as variants of the `AdjustmentKind` enum in
-`seer-editor/src/adjustment.rs`:
+`arami-editor/src/adjustment.rs`:
 
 ```rust
 pub enum AdjustmentKind {
@@ -996,7 +996,7 @@ plugins target:
 ```rust
 /// The trait that all adjustments implement, core and third-party alike.
 pub trait AdjustmentPlugin {
-    /// Unique identifier (reverse-domain for third-party, seer.* for core).
+    /// Unique identifier (reverse-domain for third-party, arami.* for core).
     fn id(&self) -> &str;
 
     /// Human-readable name.
@@ -1034,7 +1034,7 @@ The `EditGraph` stores adjustment instances as:
 ```rust
 pub struct Adjustment {
     pub id: AdjustmentId,
-    pub plugin_id: String,       // e.g., "seer.white-balance" or "com.filmdev.emulation"
+    pub plugin_id: String,       // e.g., "arami.white-balance" or "com.filmdev.emulation"
     pub params: ParamValues,     // Typed parameter values
     pub enabled: bool,
     pub zone: ZoneSource,
@@ -1047,9 +1047,9 @@ This is an incremental migration, not a big-bang rewrite:
 
 **Phase 1: Define the trait and SDK**
 
-- Define `AdjustmentPlugin` trait in seer-editor
+- Define `AdjustmentPlugin` trait in arami-editor
 - Define `ParamSchema`, `ParamValues`, and related types
-- Build the `seer-sdk` crate with helpers and macros
+- Build the `arami-sdk` crate with helpers and macros
 - Build the generic `ParamPanel` in Svelte
 
 **Phase 2: Wrap core adjustments**
@@ -1065,7 +1065,7 @@ This is an incremental migration, not a big-bang rewrite:
 - Integrate Wasmtime (or similar) as WASM runtime
 - Define the WIT contracts
 - Build the WASM host bindings
-- Load `.seerplugin` packages at startup
+- Load `.aramiplugin` packages at startup
 - Register loaded plugins in `PluginRegistry`
 
 **Phase 4: Process-isolated native plugins**
@@ -1087,18 +1087,18 @@ This is an incremental migration, not a big-bang rewrite:
 ### Namespace Convention
 
 ```
-seer.source         — built-in source decoder
-seer.white-balance  — built-in white balance
-seer.tone-curve     — built-in tone curve
-seer.color-mixer    — built-in color mixer
-seer.monochrome     — built-in monochrome
-seer.clahe          — built-in CLAHE
-seer.denoise        — built-in denoise
-seer.sharpen        — built-in sharpen
-seer.clarity        — built-in clarity
-seer.zone.luminance — built-in luminance zone
-seer.zone.brush     — built-in brush zone
-seer.zone.segmentation — built-in semantic segmentation zone
+arami.source         — built-in source decoder
+arami.white-balance  — built-in white balance
+arami.tone-curve     — built-in tone curve
+arami.color-mixer    — built-in color mixer
+arami.monochrome     — built-in monochrome
+arami.clahe          — built-in CLAHE
+arami.denoise        — built-in denoise
+arami.sharpen        — built-in sharpen
+arami.clarity        — built-in clarity
+arami.zone.luminance — built-in luminance zone
+arami.zone.brush     — built-in brush zone
+arami.zone.segmentation — built-in semantic segmentation zone
 
 com.filmdev.emulation       — third-party film emulation
 org.astro.stacking          — third-party image stacking
@@ -1115,7 +1115,7 @@ The linear pipeline model remains unchanged. A plugin-backed adjustment sits
 at a position in the pipeline just like a core adjustment:
 
 ```
-Source → [seer.white-balance] → [seer.tone-curve] → [com.filmdev.emulation] → [seer.sharpen]
+Source → [arami.white-balance] → [arami.tone-curve] → [com.filmdev.emulation] → [arami.sharpen]
 ```
 
 The evaluator doesn't know or care whether an adjustment is core or plugin:
@@ -1165,7 +1165,7 @@ plugin is installed).
 
 ### Recommended Pipeline Order
 
-Categories help Seer suggest pipeline ordering:
+Categories help Arami suggest pipeline ordering:
 
 ```
 source → color → tone → detail → creative → correction → ai
@@ -1207,7 +1207,7 @@ in their manifest. The user approves at install time:
 ```toml
 [capabilities]
 # Storage backend plugins need filesystem access
-filesystem = { read = ["~/.seer/models/"], write = [] }
+filesystem = { read = ["~/.arami/models/"], write = [] }
 # Export plugins that upload need network
 network = { allowed_hosts = ["api.example.com"] }
 ```
@@ -1222,7 +1222,7 @@ The spectrum from "total control" to "hope for the best" is not binary. Here's
 what's concretely enforceable at each level, and the mechanisms:
 
 ```
-Full Rust type safety       ←  only for core seer.* (compiled-in)
+Full Rust type safety       ←  only for core arami.* (compiled-in)
         │
 WASM memory sandbox         ←  linear memory, no raw pointers, traps on OOB
         │
@@ -1278,7 +1278,7 @@ This is the line that matters for user confidence. Here's what we can
 2. **Plugin cannot OOM your system** — memory limits ensure the plugin can
    allocate at most N MB. The host and other applications are unaffected.
 
-3. **Plugin cannot crash Seer** — WASM traps are caught as Result::Err.
+3. **Plugin cannot crash Arami** — WASM traps are caught as Result::Err.
    Process crashes are caught via `waitpid`. In both cases, the pipeline
    continues with the plugin's adjustment showing an error state.
 
@@ -1322,11 +1322,11 @@ Every plugin ships with a `manifest.toml`:
 id = "com.filmdev.emulation"
 name = "Film Emulation"
 version = "1.2.0"
-seer-api = "1.0"                    # minimum Seer API version
+arami-api = "1.0"                    # minimum Arami API version
 description = "Authentic film stock emulations with grain, halation, and color science"
 author = "FilmDev Labs"
 license = "MIT"
-homepage = "https://filmdev.com/seer-plugins"
+homepage = "https://filmdev.com/arami-plugins"
 
 [plugin.type]
 kind = "adjustment"
@@ -1347,7 +1347,7 @@ include = ["resources/**/*"]
 [limits]
 # Override defaults if the plugin legitimately needs more.
 # Users see these at install time: "This plugin requests 1 GB memory."
-# Absent values use Seer defaults (30s timeout, 512 MB memory).
+# Absent values use Arami defaults (30s timeout, 512 MB memory).
 # timeout_s = 60       # seconds, for 24MP (scales with image size)
 # memory_mb = 1024     # MB max allocation
 ```
@@ -1358,21 +1358,21 @@ include = ["resources/**/*"]
 
 ### Package Format
 
-`.seerplugin` — a zip archive containing `manifest.toml`, `plugin.wasm`,
+`.aramiplugin` — a zip archive containing `manifest.toml`, `plugin.wasm`,
 optional `resources/` directory, and optional `icon.png`.
 
 ### Installation
 
-- **Manual**: drag `.seerplugin` onto Seer window, or place in
-  `~/.seer/plugins/`
-- **Repository**: Seer settings → Plugins → Browse → search/install from
+- **Manual**: drag `.aramiplugin` onto Arami window, or place in
+  `~/.arami/plugins/`
+- **Repository**: Arami settings → Plugins → Browse → search/install from
   a community repository (future, post-MVP)
-- **Developer mode**: point Seer at a local directory for rapid iteration
+- **Developer mode**: point Arami at a local directory for rapid iteration
   during plugin development
 
 ### Version Compatibility
 
-The `seer-api` field in the manifest declares the minimum API version. Seer
+The `arami-api` field in the manifest declares the minimum API version. Arami
 checks compatibility at load time and refuses to load incompatible plugins
 with a clear error message.
 
@@ -1387,7 +1387,7 @@ API versioning follows semver:
 
 ## Comparison with Existing Ecosystems
 
-| Aspect                | PixInsight        | darktable           | GIMP/GEGL               | OpenFX           | **Seer**                                    |
+| Aspect                | PixInsight        | darktable           | GIMP/GEGL               | OpenFX           | **Arami**                                   |
 | --------------------- | ----------------- | ------------------- | ----------------------- | ---------------- | ------------------------------------------- |
 | Plugin language       | C++ / JS          | C (compile-in)      | C / Python / Scheme     | C                | **Any (WASM primary, native escape hatch)** |
 | Isolation             | None              | N/A                 | Process isolation       | None             | **WASM + process isolation**                |
@@ -1398,7 +1398,7 @@ API versioning follows semver:
 | Cross-platform binary | No                | No                  | GEGL ops yes            | Yes              | **Yes (WASM path)**                         |
 | Trust model           | Author reputation | Core team only      | Repo + reviews          | Host ecosystem   | **Tiered curation + test harness**          |
 
-Seer's approach combines GEGL's automatic UI generation, OpenFX's declarative
+Arami's approach combines GEGL's automatic UI generation, OpenFX's declarative
 parameter negotiation, PixInsight's dual-tier extensibility (native + scripted),
 and mobile app stores' layered trust model — while avoiding the compile-in
 limitation of darktable and the "trust everyone equally" model of PixInsight
@@ -1421,7 +1421,7 @@ This would dramatically accelerate pixel processing but adds complexity:
 acceleration lands for core adjustments, evaluate extending the plugin API
 with an optional `process_gpu()` entry point. This could allow plugins to
 return a WGSL snippet instead of a `process()` function for applicable
-operations, letting Seer inject them directly into the main rendering pass for
+operations, letting Arami inject them directly into the main rendering pass for
 native GPU performance without leaving the WASM sandbox.
 
 ### 2. Inter-Plugin Communication
@@ -1441,13 +1441,13 @@ This maintains isolation while enabling composition.
 
 ### 3. Scripting / Workflow Automation
 
-Beyond pixel-processing plugins, should Seer support scriptable workflows
+Beyond pixel-processing plugins, should Arami support scriptable workflows
 (like PixInsight's PJSR)? Examples: "apply these 5 adjustments with these
 settings to all images in this folder" or "if sky area > 30%, apply sky
 darkening preset."
 
 **Recommendation**: yes, but as a separate extension point (not covered in
-this spec). A future `seer.script` world could provide:
+this spec). A future `arami.script` world could provide:
 
 - Access to the pipeline API (add/remove/configure adjustments)
 - Batch processing over multiple images
@@ -1517,7 +1517,7 @@ The extensibility design centers on four principles:
    session continues. They can undo, disable, or remove the plugin and move on.
 
 The primary plugin author experience: write a Rust function, annotate parameters
-with a derive macro, compile to WASM, ship a `.seerplugin` zip. No UI code,
+with a derive macro, compile to WASM, ship a `.aramiplugin` zip. No UI code,
 no framework knowledge, no platform-specific builds. For authors with existing
 C/C++ code or specific performance needs, a native process-isolated path exists
 as an alternative.

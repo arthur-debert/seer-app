@@ -1,7 +1,7 @@
 User Interface
 
-This document is the design brief for the Seer Application. The User Experience part is covered here [./user-experience.lex].
-We will do the Desktop version first, as Seer is a new wave photo editor and many of our hypothesis need user feedback to validate, and Desktop will get us there faster (more in touch with the core domain, easier to iterate). 
+This document is the design brief for the Arami Application. The User Experience part is covered here [./user-experience.lex].
+We will do the Desktop version first, as Arami is a new wave photo editor and many of our hypothesis need user feedback to validate, and Desktop will get us there faster (more in touch with the core domain, easier to iterate). 
 
 Note that, menus and some integration layer aside, this refers to both the Desktop stand alone app and the web client for Desktop devices.
 
@@ -141,7 +141,7 @@ The Interface
     1. Photo View
       The full photo display, core to the domain.
       1.1 Image Viewer:
-        - mate: a fundamental entity, as having a framing around the image helps visualization and seer has a rich set of configs and rules for it. By default medium gray;.
+        - mate: a fundamental entity, as having a framing around the image helps visualization and arami has a rich set of configs and rules for it. By default medium gray;.
         - Image: the rendered image
       1.2 Viewer Controls: 
         - Zoom
@@ -189,60 +189,60 @@ Notes
   1. Nodes
 
     Phase 0 — Source (condenser)
-      Standard Image (seer.source.standard) — no parameters
-      RAW / DNG (seer.source.raw) — no parameters
+      Standard Image (arami.source.standard) — no parameters
+      RAW / DNG (arami.source.raw) — no parameters
 
     Phase 1 — Geometry (pass-through)
-      Crop (seer.crop)
+      Crop (arami.crop)
         x (X, f64 0–1), y (Y, f64 0–1), width (Width, f64 0–1), height (Height, f64 0–1)
         ratio_w (Ratio W, f64 1–32), ratio_h (Ratio H, f64 1–32), landscape (Landscape, bool), show_thirds (Show Thirds, bool)
-      Rotate (seer.rotate)
+      Rotate (arami.rotate)
         angle (Angle, f64 -180–180)
-      Perspective (seer.perspective)
+      Perspective (arami.perspective)
         tl_x (Top-Left X, f64 -1–1), tl_y (Top-Left Y, f64 -1–1), tr_x (Top-Right X, f64 -1–1), tr_y (Top-Right Y, f64 -1–1), br_x (Bottom-Right X, f64 -1–1), br_y (Bottom-Right Y, f64 -1–1), bl_x (Bottom-Left X, f64 -1–1), bl_y (Bottom-Left Y, f64 -1–1)
 
     Phase 2 — Zones (pass-through)
-      Luminance (seer.zone.luminance)
+      Luminance (arami.zone.luminance)
         range_low (Range Low, f64 0–1), range_high (Range High, f64 0–1), feather (Feather, f64 0–1)
-      Color Range (seer.zone.color-range)
+      Color Range (arami.zone.color-range)
         hue_center (Hue Center, f64 0–360), hue_range (Hue Range, f64 0–180), saturation_min (Sat Min, f64 0–1), saturation_max (Sat Max, f64 0–1), feather (Feather, f64 0–1)
-      Gradient (seer.zone.gradient)
+      Gradient (arami.zone.gradient)
         kind (Kind, enum: Linear | Radial), start_x (Start X, f64 0–1), start_y (Start Y, f64 0–1), end_x (End X, f64 0–1), end_y (End Y, f64 0–1)
-      Brush (seer.zone.brush)
+      Brush (arami.zone.brush)
         strokes (Strokes, BrushStrokes)
-      Semantic Segmentation (seer.zone.segmentation) — no parameters (AI-inferred labels: sky, person, vegetation, structure)
+      Semantic Segmentation (arami.zone.segmentation) — no parameters (AI-inferred labels: sky, person, vegetation, structure)
 
     Phase 3 — Adjustments (pass-through)
-      White Balance (seer.white-balance)
+      White Balance (arami.white-balance)
         temperature (Temperature, f64 2000–12000 K), tint (Tint, f64 -1–1)
-      Tone Curve (seer.tone-curve)
+      Tone Curve (arami.tone-curve)
         master (Master, Curve), red (Red, Curve), green (Green, Curve), blue (Blue, Curve)
-      Color Mixer (seer.color-mixer)
+      Color Mixer (arami.color-mixer)
         red_gain (Red Gain, f64 0–2), green_gain (Green Gain, f64 0–2), blue_gain (Blue Gain, f64 0–2), saturation (Saturation, f64 -1–1)
         hue_shift_0..7 (Red/Orange/Yellow/Green/Cyan/Blue/Purple/Magenta Hue Shift, f64 -30–30)
-      Monochrome (seer.monochrome)
+      Monochrome (arami.monochrome)
         red_weight (Red Weight, f64 0–2), green_weight (Green Weight, f64 0–2), blue_weight (Blue Weight, f64 0–2), strength (Strength, f64 0–1)
-      CLAHE (seer.clahe)
+      CLAHE (arami.clahe)
         clip_limit (Clip Limit, f64 1–10), tile_size (Tile Size, i64 2–32), strength (Strength, f64 0–1)
-      Denoise (seer.denoise)
+      Denoise (arami.denoise)
         spatial_sigma (Spatial Sigma, f64 0–5), range_sigma (Range Sigma, f64 0.01–0.5), iterations (Iterations, i64 1–5)
-      Sharpen (seer.sharpen)
+      Sharpen (arami.sharpen)
         radius (Radius, f64 0.1–10), amount (Amount, f64 0–3), threshold (Threshold, f64 0–0.1)
-      Clarity (seer.clarity)
+      Clarity (arami.clarity)
         strength (Strength, f64 -1–1)
 
     Phase 4 — Output (diffuser)
       Output groups, each containing an encoder and optional child nodes.
       Encoders:
-        PNG (seer.output.png) — no parameters
-        JPEG (seer.output.jpeg) — quality (Quality, i64 1–100)
-        WebP (seer.output.webp) — no parameters
-        TIFF (seer.output.tiff) — no parameters
-        AVIF (seer.output.avif) — quality (Quality, i64 1–100)
+        PNG (arami.output.png) — no parameters
+        JPEG (arami.output.jpeg) — quality (Quality, i64 1–100)
+        WebP (arami.output.webp) — no parameters
+        TIFF (arami.output.tiff) — no parameters
+        AVIF (arami.output.avif) — quality (Quality, i64 1–100)
       Child nodes (applied before encoding):
-        Resize (seer.output-child.resize)
+        Resize (arami.output-child.resize)
           mode (Mode, enum: Original | Longest Edge | Fit | Fill | Exact), px (Longest Edge px, i64 1–32000), width (Width, i64 1–32000), height (Height, i64 1–32000), label (Label, string)
-        Reframe (seer.output-child.reframe)
+        Reframe (arami.output-child.reframe)
           aspect_w (Aspect W, f64 0.1–100), aspect_h (Aspect H, f64 0.1–100), gravity (Gravity, enum: Center | N | S | E | W | NE | NW | SE | SW), offset_x (Offset X, f64 -1–1), offset_y (Offset Y, f64 -1–1)
-        Metadata (seer.output-child.metadata)
+        Metadata (arami.output-child.metadata)
           strip_exif (Strip EXIF, bool), strip_gps (Strip GPS, bool), strip_iptc (Strip IPTC, bool), copyright (Copyright, string), artist (Artist, string)

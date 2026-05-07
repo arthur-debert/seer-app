@@ -22,7 +22,7 @@
 		overrides: Partial<AdjustmentInfo> & { id: string; name: string }
 	): AdjustmentInfo {
 		return {
-			plugin_id: 'seer.tone-curve',
+			plugin_id: 'arami.tone-curve',
 			enabled: true,
 			params: {},
 			zone: 'Full',
@@ -49,7 +49,7 @@
 			label: 'Source node',
 			description: 'Index 0, not draggable, Full zone (globe)',
 			props: {
-				adjustment: makeAdj({ id: 'src', name: 'White Balance', plugin_id: 'seer.white-balance' }),
+				adjustment: makeAdj({ id: 'src', name: 'White Balance', plugin_id: 'arami.white-balance' }),
 				index: 0,
 				isSelected: false,
 				isSource: false,
@@ -63,7 +63,7 @@
 			label: 'Enabled, Full zone',
 			description: 'Normal adjustment with globe icon (no zone)',
 			props: {
-				adjustment: makeAdj({ id: 'tc1', name: 'Tone Curve', plugin_id: 'seer.tone-curve' }),
+				adjustment: makeAdj({ id: 'tc1', name: 'Tone Curve', plugin_id: 'arami.tone-curve' }),
 				index: 1,
 				isSelected: false,
 				isSource: false,
@@ -77,7 +77,7 @@
 			label: 'Selected',
 			description: 'Highlighted row background',
 			props: {
-				adjustment: makeAdj({ id: 'sh1', name: 'Sharpen', plugin_id: 'seer.sharpen' }),
+				adjustment: makeAdj({ id: 'sh1', name: 'Sharpen', plugin_id: 'arami.sharpen' }),
 				index: 5,
 				isSelected: true,
 				isSource: false,
@@ -94,7 +94,7 @@
 				adjustment: makeAdj({
 					id: 'dn1',
 					name: 'Denoise',
-					plugin_id: 'seer.denoise',
+					plugin_id: 'arami.denoise',
 					enabled: false
 				}),
 				index: 4,
@@ -110,7 +110,7 @@
 			label: 'Error',
 			description: 'Red dot before toggle',
 			props: {
-				adjustment: makeAdj({ id: 'cl1', name: 'Clarity', plugin_id: 'seer.clarity' }),
+				adjustment: makeAdj({ id: 'cl1', name: 'Clarity', plugin_id: 'arami.clarity' }),
 				index: 6,
 				isSelected: false,
 				isSource: false,

@@ -1,4 +1,4 @@
-declare module '$editor_wasm/seer_editor_wasm.js' {
+declare module '$editor_wasm/arami_editor_wasm.js' {
 	export class EditGraph {
 		constructor(image_bytes: Uint8Array, path: string, timestamp_ms: number);
 		static from_rgb_f32(
@@ -113,7 +113,7 @@ declare module '$editor_wasm/seer_editor_wasm.js' {
 	): Promise<void>;
 }
 
-declare module '$editor_wasm/seer_editor_wasm_bg.wasm?url' {
+declare module '$editor_wasm/arami_editor_wasm_bg.wasm?url' {
 	const url: string;
 	export default url;
 }

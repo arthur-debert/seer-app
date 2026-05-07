@@ -1,7 +1,7 @@
 # Mirror — Feature Spec
 
 **Component:** Mirror
-**Part of:** Seer suite
+**Part of:** Arami suite
 
 ## What Mirror Does
 
@@ -47,7 +47,7 @@ navigation equally.
 
 ### Zoom and Pan Behavior
 
-Zoom and pan follow the same model as `seer_viewer::viewer::ViewerState`:
+Zoom and pan follow the same model as `arami_viewer::viewer::ViewerState`:
 
 - Zoom is relative to contain-fit (zoom = 1.0 means full image visible).
 - Pan is in image-pixel coordinates, stable across canvas resizes.
@@ -68,7 +68,7 @@ Mirror accepts two images. For the initial implementation, images are loaded fro
 file paths (desktop) or URLs (browser), using the same `loadImage` infrastructure
 as the rest of the suite.
 
-In Seer's [Working Vocabulary](../README.md#working-vocabulary), each
+In Arami's [Working Vocabulary](../README.md#working-vocabulary), each
 panel typically displays a **Rendering** (an editorial treatment) or a **Variant**
 (a rendering at a specific crop). Mirror does not distinguish — it receives decoded
 pixel data and displays it.
@@ -127,7 +127,7 @@ list of objects:
 ```
 
 Key Point IDs are stable across sessions. The model types (`KeyPoint`, `Roi`) live
-in `seer-viewer` and serialize via serde.
+in `arami-viewer` and serialize via serde.
 
 ## Architecture
 
@@ -172,7 +172,7 @@ which is correct behavior.
 
 Following project conventions:
 
-- Key Point and ROI types live in `seer-viewer` with serde serialization.
+- Key Point and ROI types live in `arami-viewer` with serde serialization.
 - The sync controller's logic (translating one panel's interaction to the other)
   is a Rust function exposed via WASM.
 - TypeScript handles event wiring, panel layout, and rendering.

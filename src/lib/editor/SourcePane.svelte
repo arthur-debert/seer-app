@@ -19,7 +19,7 @@
 		<PipelineItem
 			adjustment={{
 				id: SOURCE_ID,
-				plugin_id: source.entries[0]?.plugin_id ?? 'seer.source.standard',
+				plugin_id: source.entries[0]?.plugin_id ?? 'arami.source.standard',
 				name: 'Source',
 				enabled: true,
 				params: {},

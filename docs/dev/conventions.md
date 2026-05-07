@@ -1,10 +1,10 @@
 # Conventions
 
-Project-wide conventions for Seer. When in doubt, check here first.
+Project-wide conventions for Arami. When in doubt, check here first.
 
 ## Vocabulary
 
-Seer defines a vocabulary that separates the photographer's concept of an
+Arami defines a vocabulary that separates the photographer's concept of an
 image from the files on disk. See the [vision doc](README.md) for the full
 definitions. In brief:
 
@@ -19,7 +19,7 @@ definitions. In brief:
 vocabulary: it displays visual content on a canvas. The `image` parameter in
 viewport functions (e.g., `contain_scale(image, canvas)`) refers to the pixel
 dimensions of whatever is being displayed — which could be a Rendering, a
-Variant, or a Source. It is not the Seer "Image" concept.
+Variant, or a Source. It is not the Arami "Image" concept.
 
 ## Coordinate System
 
@@ -38,13 +38,13 @@ job, not the API's.
 
 Rust is the source of truth. TypeScript mirrors exactly. All coordinates are
 `f64`. Truncation to GPU precision (`f32`) happens at the shader boundary,
-nowhere else. See `seer-viewer::geometry` cargo docs for the full API.
+nowhere else. See `arami-viewer::geometry` cargo docs for the full API.
 
 ## Display Modes
 
 Two modes only: **Contain** (fit inside canvas, letterbox/pillarbox) and
 **Cover** (fill canvas, crop edges). No Stretch — distorted images have no
-use case in photography tooling. See `seer-viewer::viewport::DisplayMode`.
+use case in photography tooling. See `arami-viewer::viewport::DisplayMode`.
 
 ## Client / Server Boundary
 
@@ -55,7 +55,7 @@ serve non-browser targets (PDF export, CLI tools), and is the preferred
 language. See [technical-overview.md](technical-overview.md) for the full
 Rust-vs-TypeScript responsibility split.
 
-### Rust (seer-editor, seer-viewer)
+### Rust (arami-editor, arami-viewer)
 
 - All geometry math: viewport fit, coordinate transforms, layout computation
 - Image processing: pipeline evaluation, adjustment processing, zone generation
@@ -89,7 +89,7 @@ The shader doesn't know about display modes. It gets UV parameters.
 | Kind                    | Where                              | Example                                           |
 | ----------------------- | ---------------------------------- | ------------------------------------------------- |
 | Design docs (the "why") | `docs/`                            | `conventions.md`, `testing.md`, `imaging.md`      |
-| API docs (the "what")   | In-code, Rust doc comments (`///`) | `seer_viewer::viewport::compute_view_layout`      |
+| API docs (the "what")   | In-code, Rust doc comments (`///`) | `arami_viewer::viewport::compute_view_layout`     |
 | Inline rationale        | Comments at non-obvious points     | `// Y-flipped because texture origin is top-left` |
 
 Rust doc comments are canonical for shared logic. TypeScript that wraps Rust

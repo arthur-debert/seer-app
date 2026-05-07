@@ -56,13 +56,13 @@ test.describe('Visual fidelity: Sidebar layout', () => {
 
 test.describe('Visual fidelity: NodePanel', () => {
 	test('node card has no border-radius (flush cards)', async ({ editor, page }) => {
-		await editor.addAdjustment('seer.white-balance');
+		await editor.addAdjustment('arami.white-balance');
 		const styles = await getStyles(page, '[data-testid="node-panel"]', ['border-radius']);
 		expect(px(styles['border-radius'])).toBe(0);
 	});
 
 	test('node header padding matches prototype (py-2.5 = 10px)', async ({ editor, page }) => {
-		await editor.addAdjustment('seer.white-balance');
+		await editor.addAdjustment('arami.white-balance');
 		const styles = await getStyles(page, '[data-testid="node-header"]', [
 			'padding-top',
 			'padding-bottom',
@@ -76,7 +76,7 @@ test.describe('Visual fidelity: NodePanel', () => {
 	});
 
 	test('node header has bottom border', async ({ editor, page }) => {
-		await editor.addAdjustment('seer.white-balance');
+		await editor.addAdjustment('arami.white-balance');
 		const styles = await getStyles(page, '[data-testid="node-header"]', [
 			'border-bottom-width',
 			'border-bottom-style'
@@ -86,7 +86,7 @@ test.describe('Visual fidelity: NodePanel', () => {
 	});
 
 	test('node content has padding and gap matching prototype', async ({ editor, page }) => {
-		await editor.addAdjustment('seer.white-balance');
+		await editor.addAdjustment('arami.white-balance');
 		const styles = await getStyles(page, '[data-testid="node-content"]', [
 			'padding-top',
 			'padding-bottom',
@@ -102,15 +102,15 @@ test.describe('Visual fidelity: NodePanel', () => {
 	});
 
 	test('node icon is 12px', async ({ editor, page }) => {
-		await editor.addAdjustment('seer.white-balance');
+		await editor.addAdjustment('arami.white-balance');
 		const box = await getBox(page, '[data-testid="node-icon"]');
 		expect(box.width).toBeCloseTo(12, 0);
 		expect(box.height).toBeCloseTo(12, 0);
 	});
 
 	test('bottom tab is small triangle (12x7)', async ({ editor, page }) => {
-		await editor.addAdjustment('seer.white-balance');
-		await editor.addAdjustment('seer.tone-curve');
+		await editor.addAdjustment('arami.white-balance');
+		await editor.addAdjustment('arami.tone-curve');
 		// First node should have a bottom tab
 		const tabSvg = page.locator('[data-testid="node-bottom-tab"] svg');
 		const count = await tabSvg.count();
@@ -145,13 +145,13 @@ test.describe('Visual fidelity: PhaseGroup', () => {
 
 test.describe('Visual fidelity: Slider', () => {
 	test('slider value text is 9px', async ({ editor, page }) => {
-		await editor.addAdjustment('seer.white-balance');
+		await editor.addAdjustment('arami.white-balance');
 		const styles = await getStyles(page, '[data-testid="slider-value"]', ['font-size']);
 		expect(px(styles['font-size'])).toBeCloseTo(9, 0);
 	});
 
 	test('slider track is 6px tall (h-1.5)', async ({ editor, page }) => {
-		await editor.addAdjustment('seer.white-balance');
+		await editor.addAdjustment('arami.white-balance');
 		const box = await getBox(page, '[data-testid="slider-track"]');
 		expect(box.height).toBeCloseTo(6, 0);
 	});

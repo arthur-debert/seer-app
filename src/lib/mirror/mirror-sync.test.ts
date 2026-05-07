@@ -10,13 +10,13 @@ import { describe, test, expect, beforeAll } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-import { initSync, ViewerState } from '../../../wasm/seer-viewer-wasm/pkg/seer_viewer_wasm.js';
-import type { WasmViewLayout } from '$viewer_wasm/seer_viewer_wasm.js';
+import { initSync, ViewerState } from '../../../wasm/arami-viewer-wasm/pkg/arami_viewer_wasm.js';
+import type { WasmViewLayout } from '$viewer_wasm/arami_viewer_wasm.js';
 
 beforeAll(() => {
 	const wasmPath = resolve(
 		__dirname,
-		'../../../wasm/seer-viewer-wasm/pkg/seer_viewer_wasm_bg.wasm'
+		'../../../wasm/arami-viewer-wasm/pkg/arami_viewer_wasm_bg.wasm'
 	);
 	const wasmBytes = readFileSync(wasmPath);
 	initSync({ module: wasmBytes });

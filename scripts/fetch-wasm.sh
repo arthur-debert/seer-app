@@ -6,23 +6,23 @@ cd "$(git rev-parse --show-toplevel)"
 WASM_DIR="wasm"
 STAMP_FILE="$WASM_DIR/.version-stamp"
 
-# --- Local override via SEER_WASM_PATH ---
-if [[ -n "${SEER_WASM_PATH:-}" ]]; then
-	viewer_src="$SEER_WASM_PATH/seer-viewer-wasm"
-	editor_src="$SEER_WASM_PATH/seer-editor-wasm"
+# --- Local override via ARAMI_WASM_PATH ---
+if [[ -n "${ARAMI_WASM_PATH:-}" ]]; then
+	viewer_src="$ARAMI_WASM_PATH/arami-viewer-wasm"
+	editor_src="$ARAMI_WASM_PATH/arami-editor-wasm"
 
 	if [[ ! -d "$viewer_src/pkg" || ! -d "$editor_src/pkg" ]]; then
-		echo "ERROR: SEER_WASM_PATH=$SEER_WASM_PATH but pkg dirs not found." >&2
-		echo "Run wasm-pack build in seer-core first." >&2
+		echo "ERROR: ARAMI_WASM_PATH=$ARAMI_WASM_PATH but pkg dirs not found." >&2
+		echo "Run wasm-pack build in arami-core first." >&2
 		exit 1
 	fi
 
 	rm -rf "$WASM_DIR"
 	mkdir -p "$WASM_DIR"
-	ln -sf "$(cd "$viewer_src" && pwd)" "$WASM_DIR/seer-viewer-wasm"
-	ln -sf "$(cd "$editor_src" && pwd)" "$WASM_DIR/seer-editor-wasm"
-	echo "local:$SEER_WASM_PATH" > "$STAMP_FILE"
-	echo "WASM linked from $SEER_WASM_PATH"
+	ln -sf "$(cd "$viewer_src" && pwd)" "$WASM_DIR/arami-viewer-wasm"
+	ln -sf "$(cd "$editor_src" && pwd)" "$WASM_DIR/arami-editor-wasm"
+	echo "local:$ARAMI_WASM_PATH" > "$STAMP_FILE"
+	echo "WASM linked from $ARAMI_WASM_PATH"
 	exit 0
 fi
 
@@ -43,12 +43,12 @@ trap 'rm -rf "$TMPDIR"' EXIT
 
 gh release download "$VERSION" \
 	--repo "$REPO" \
-	--pattern "seer-wasm.tar.gz" \
+	--pattern "arami-wasm.tar.gz" \
 	--dir "$TMPDIR"
 
 rm -rf "$WASM_DIR"
 mkdir -p "$WASM_DIR"
-tar xzf "$TMPDIR/seer-wasm.tar.gz" -C "$WASM_DIR"
+tar xzf "$TMPDIR/arami-wasm.tar.gz" -C "$WASM_DIR"
 
 echo "$VERSION" > "$STAMP_FILE"
 echo "WASM $VERSION installed to $WASM_DIR/"

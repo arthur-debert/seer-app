@@ -472,10 +472,10 @@
 					const group = exportGroups.find((g) => g.id === id);
 					const encoder = group?.children.find(
 						(c) =>
-							c.plugin_id.startsWith('seer.output.') &&
-							!c.plugin_id.startsWith('seer.output-child.')
+							c.plugin_id.startsWith('arami.output.') &&
+							!c.plugin_id.startsWith('arami.output-child.')
 					);
-					const ext = encoder?.plugin_id.replace('seer.output.', '') ?? 'bin';
+					const ext = encoder?.plugin_id.replace('arami.output.', '') ?? 'bin';
 					const srcPath = source.entries[0]?.path || 'export';
 					const srcBasename = srcPath.split(/[/\\]/).pop() ?? 'export';
 					const srcName = srcBasename.includes('.')
@@ -894,7 +894,7 @@
 								adjustment={node}
 								schema={schemas[node.plugin_id] ?? null}
 								onParamChange={handleParamChange}
-								onCropRatioChange={node.plugin_id === 'seer.crop'
+								onCropRatioChange={node.plugin_id === 'arami.crop'
 									? handleUpdateCropRatio
 									: undefined}
 							/>

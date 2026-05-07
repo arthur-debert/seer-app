@@ -2,15 +2,15 @@
 
 ## Context
 
-Circe is Seer's non-destructive image editing engine. It builds on the
-shared infrastructure established by `seer-viewer` — the three-layer
+Circe is Arami's non-destructive image editing engine. It builds on the
+shared infrastructure established by `arami-viewer` — the three-layer
 architecture (pure math + stateful controller + thin UI), Rust-first logic,
 WASM bridge, GPU rendering — and extends it into a full processing pipeline.
 
 This document covers the design philosophy, pipeline architecture,
 adjustment ontology, zones, BW workflow, versioning, and the relationship
-to Seer's vocabulary. For implementation details, see the cargo docs on
-the `seer-editor` crate modules.
+to Arami's vocabulary. For implementation details, see the cargo docs on
+the `arami-editor` crate modules.
 
 ### Design Philosophy
 
@@ -39,7 +39,7 @@ The core editing engine is feature-complete through the foundation layer:
 WhiteBalance, ToneCurve, ColorMixer, Monochrome, CLAHE, Denoise, Sharpen,
 Clarity. DNG/RAW source decoding via libraw. Pipeline evaluator with
 streaming evaluation and per-adjustment f32 caching. See the
-`seer-editor` cargo docs and the [execution-interaction](execution-interaction.md)
+`arami-editor` cargo docs and the [execution-interaction](execution-interaction.md)
 spec for the async model.
 
 **Zones.** All 5 zone generators (Luminance, ColorRange, Gradient, Brush,
@@ -62,7 +62,7 @@ interactive history with fullPath tracking and edit guards, parameter panels
 for all adjustment types, tone curve editor, keyboard shortcuts (Cmd+Z,
 Cmd+Shift+Z), adjustment reordering, zone assignment UI.
 
-**Test Coverage.** 435 seer-editor tests + 162 seer-viewer tests (597 total),
+**Test Coverage.** 435 arami-editor tests + 162 arami-viewer tests (597 total),
 plus WASM integration tests and E2E tests.
 
 Remaining work: pipeline branching (fork points for Renderings), GPU
@@ -154,7 +154,7 @@ before color (tonal foundation before hue work), denoise before sharpen
 (sharpening amplifies noise), sharpen last (sharpen the final image). But
 these are conventions, not constraints — the system allows any order.
 
-See the `seer-editor::processing` module cargo docs for algorithm details,
+See the `arami-editor::processing` module cargo docs for algorithm details,
 parameter ranges, and per-adjustment documentation.
 
 ### Category B: Geometric
@@ -165,7 +165,7 @@ support direct manipulation on the canvas — see
 architecture and [geometry.md](geometry.md) for the full design.
 
 - **Crop** — extract a rect in normalized [0,1]² coordinates; frame-first
-  interaction reusing `FramerState` from `seer-viewer`
+  interaction reusing `FramerState` from `arami-viewer`
 - **Rotate** — arbitrary angle, canvas grows to contain rotated content;
   bilinear interpolation, black fill for empty corners
 - **Perspective** — four-corner projective transform via homography; each
@@ -183,7 +183,7 @@ Produce a grayscale zone, no pixel modification.
 - **GradientZone** — linear or radial gradient
 
 Zone generators live outside the main pipeline. They're defined once and
-referenced by any number of adjustments. See `seer-editor::zone` for the
+referenced by any number of adjustments. See `arami-editor::zone` for the
 composition model.
 
 ### Category D: Structural
@@ -218,7 +218,7 @@ pixel.
 Rasterized at evaluation time. This keeps sidecars small, supports
 resolution-independent reordering, and avoids large bitmap storage.
 
-See `seer-editor::zone` cargo docs for the `ZoneSource` enum and composition
+See `arami-editor::zone` cargo docs for the `ZoneSource` enum and composition
 API.
 
 ---
@@ -237,7 +237,7 @@ Luminosity).
 
 ### Adaptive BW via Profiles
 
-The power of Seer's BW workflow comes from profiles. A Monochrome
+The power of Arami's BW workflow comes from profiles. A Monochrome
 profile populates the pipeline with:
 
 ```text
@@ -315,7 +315,7 @@ from N forward. The linear pipeline makes this trivial: invalidation is
 ## 7. Sidecar Format
 
 The sidecar contains the full edit state for one image. Stored as a companion
-file (e.g., `DSC_4210.seer` next to `DSC_4210.dng`).
+file (e.g., `DSC_4210.arami` next to `DSC_4210.dng`).
 
 **Format:** JSON during development (human-readable, diffable, debuggable).
 MessagePack or CBOR for production if size matters.
@@ -332,9 +332,9 @@ operation that can be replayed.
 
 ---
 
-## 8. Relationship to Seer Vocabulary
+## 8. Relationship to Arami Vocabulary
 
-Circe's edit graph IS what produces a **Rendering** in Seer's vocabulary:
+Circe's edit graph IS what produces a **Rendering** in Arami's vocabulary:
 
 - **Source** -> the input image file
 - **Rendering** -> the output of a Circe pipeline (a particular version/branch)

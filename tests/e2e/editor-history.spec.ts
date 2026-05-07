@@ -9,28 +9,28 @@ test.describe('Editor History Panel', () => {
 
 	test('adding adjustments creates history entries', async ({ page, editor }) => {
 		await editor.openHistory();
-		await editor.addAdjustment('seer.white-balance');
+		await editor.addAdjustment('arami.white-balance');
 		// History entry label is "Add White Balance" (set by Rust add_adjustment)
 		await expect(page.getByText('Add White Balance')).toBeVisible({ timeout: 5_000 });
 
-		await editor.addAdjustment('seer.tone-curve');
+		await editor.addAdjustment('arami.tone-curve');
 		await editor.expectPipelineLength(2);
 		await expect(page.getByText('Add Tone Curve')).toBeVisible({ timeout: 5_000 });
 	});
 
 	test('Cmd-Z undoes and Cmd-Shift-Z redoes', async ({ editor }) => {
-		await editor.addAdjustment('seer.white-balance');
-		await editor.addAdjustment('seer.tone-curve');
+		await editor.addAdjustment('arami.white-balance');
+		await editor.addAdjustment('arami.tone-curve');
 		await editor.expectPipelineLength(2);
 
 		// Undo: ToneCurve should disappear
 		await editor.undo();
-		await editor.expectAdjustmentNotExists('seer.tone-curve');
-		await editor.expectAdjustmentExists('seer.white-balance');
+		await editor.expectAdjustmentNotExists('arami.tone-curve');
+		await editor.expectAdjustmentExists('arami.white-balance');
 
 		// Redo: ToneCurve should reappear
 		await editor.redo();
-		await editor.expectAdjustmentExists('seer.tone-curve');
+		await editor.expectAdjustmentExists('arami.tone-curve');
 	});
 
 	test('click history entry to jump — forward entries stay visible but dimmed', async ({
@@ -38,12 +38,12 @@ test.describe('Editor History Panel', () => {
 		editor
 	}) => {
 		await editor.openHistory();
-		await editor.addAdjustment('seer.white-balance');
-		await editor.addAdjustment('seer.tone-curve');
+		await editor.addAdjustment('arami.white-balance');
+		await editor.addAdjustment('arami.tone-curve');
 
 		// Click "Open Image" entry to jump to root
 		await page.getByText('Open Image').click();
-		await editor.expectAdjustmentNotExists('seer.white-balance');
+		await editor.expectAdjustmentNotExists('arami.white-balance');
 		await editor.expectPipelineLength(0);
 
 		// Forward entries should still be visible in history
@@ -58,29 +58,29 @@ test.describe('Editor History Panel', () => {
 
 		// Click forward entry to jump back to leaf
 		await page.getByText('Add Tone Curve').click();
-		await editor.expectAdjustmentExists('seer.tone-curve');
+		await editor.expectAdjustmentExists('arami.tone-curve');
 		await editor.expectAtLeaf(true);
 	});
 
 	test('editing at non-leaf shows confirm dialog', async ({ page, editor }) => {
 		await editor.openHistory();
-		await editor.addAdjustment('seer.white-balance');
+		await editor.addAdjustment('arami.white-balance');
 
 		// Jump back to root
 		await page.getByText('Open Image').click();
-		await editor.expectAdjustmentNotExists('seer.white-balance');
+		await editor.expectAdjustmentNotExists('arami.white-balance');
 
 		// Dismiss the confirm dialog to cancel
 		page.once('dialog', (dialog) => dialog.dismiss());
 		await page.evaluate(() =>
 			(
 				window as unknown as { __editorActions: { addAdjustment: (id: string) => void } }
-			).__editorActions.addAdjustment('seer.tone-curve')
+			).__editorActions.addAdjustment('arami.tone-curve')
 		);
 		// ToneCurve should NOT appear (dialog was dismissed)
 		await expect(async () => {
 			const state = await editor.getState();
-			expect(state.adjustments.some((a) => a.plugin_id === 'seer.tone-curve')).toBe(false);
+			expect(state.adjustments.some((a) => a.plugin_id === 'arami.tone-curve')).toBe(false);
 		}).toPass({ timeout: 2_000, intervals: [200] });
 
 		// Accept the confirm dialog
@@ -88,9 +88,9 @@ test.describe('Editor History Panel', () => {
 		await page.evaluate(() =>
 			(
 				window as unknown as { __editorActions: { addAdjustment: (id: string) => void } }
-			).__editorActions.addAdjustment('seer.tone-curve')
+			).__editorActions.addAdjustment('arami.tone-curve')
 		);
-		await editor.expectAdjustmentExists('seer.tone-curve');
+		await editor.expectAdjustmentExists('arami.tone-curve');
 
 		// Forward history (WhiteBalance) should be gone
 		const state = await editor.getState();
@@ -99,24 +99,24 @@ test.describe('Editor History Panel', () => {
 
 	test('canUndo and canRedo state', async ({ editor }) => {
 		// Add adjustment
-		await editor.addAdjustment('seer.white-balance');
+		await editor.addAdjustment('arami.white-balance');
 		await editor.expectUndoRedo(true, false);
 
 		// Undo
 		await editor.undo();
-		await editor.expectAdjustmentNotExists('seer.white-balance');
+		await editor.expectAdjustmentNotExists('arami.white-balance');
 		// Can still undo (Open Image), and can now redo
 		await editor.expectUndoRedo(true, true);
 
 		// Redo
 		await editor.redo();
-		await editor.expectAdjustmentExists('seer.white-balance');
+		await editor.expectAdjustmentExists('arami.white-balance');
 		await editor.expectUndoRedo(true, false);
 	});
 
 	test('create and delete tag', async ({ page, editor }) => {
 		await editor.openHistory();
-		await editor.addAdjustment('seer.white-balance');
+		await editor.addAdjustment('arami.white-balance');
 
 		// Click "+" button on head entry to create tag (use exact match)
 		await page.getByRole('button', { name: 'Add tag', exact: true }).click();
@@ -135,8 +135,8 @@ test.describe('Editor History Panel', () => {
 
 	test('filter toggle shows only tagged entries', async ({ page, editor }) => {
 		await editor.openHistory();
-		await editor.addAdjustment('seer.white-balance');
-		await editor.addAdjustment('seer.tone-curve');
+		await editor.addAdjustment('arami.white-balance');
+		await editor.addAdjustment('arami.tone-curve');
 
 		// Tag the current head (use exact match)
 		await page.getByRole('button', { name: 'Add tag', exact: true }).click();

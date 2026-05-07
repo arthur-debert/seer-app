@@ -9,8 +9,8 @@ const config = {
 			fallback: 'index.html'
 		}),
 		alias: {
-			$viewer_wasm: 'wasm/seer-viewer-wasm/pkg',
-			$editor_wasm: 'wasm/seer-editor-wasm/pkg'
+			$viewer_wasm: 'wasm/arami-viewer-wasm/pkg',
+			$editor_wasm: 'wasm/arami-editor-wasm/pkg'
 		}
 	}
 };

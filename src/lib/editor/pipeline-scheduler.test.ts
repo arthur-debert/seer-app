@@ -178,7 +178,7 @@ describe('rAF coalescing', () => {
 		expect(performMessages(worker)).toHaveLength(0);
 
 		// Now send a non-coalescable action
-		scheduler.perform('add adjustment', [{ type: 'add-adjustment', pluginId: 'seer.contrast' }]);
+		scheduler.perform('add adjustment', [{ type: 'add-adjustment', pluginId: 'arami.contrast' }]);
 
 		// Both should be sent immediately (no rAF wait)
 		const msgs = performMessages(worker);
@@ -189,7 +189,7 @@ describe('rAF coalescing', () => {
 			id: 'adj-1',
 			params: { value: 0.5 }
 		});
-		expect(msgs[0].actions[1]).toEqual({ type: 'add-adjustment', pluginId: 'seer.contrast' });
+		expect(msgs[0].actions[1]).toEqual({ type: 'add-adjustment', pluginId: 'arami.contrast' });
 
 		// rAF should have been cancelled
 		expect(cancelAnimationFrame).toHaveBeenCalled();

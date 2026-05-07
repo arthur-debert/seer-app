@@ -315,7 +315,7 @@ class EditorHarness {
 
 	async getCropParams(): Promise<{ x: number; y: number; width: number; height: number } | null> {
 		const state = await this.getState();
-		const crop = state.geometry.find((g) => g.plugin_id === 'seer.crop');
+		const crop = state.geometry.find((g) => g.plugin_id === 'arami.crop');
 		if (!crop) return null;
 		const p = crop.params as Record<string, { Float: number }>;
 		return {
@@ -365,7 +365,7 @@ class EditorHarness {
 			const state = await this.getState();
 			const found = state.exportGroups.some((g) =>
 				g.children.some(
-					(c) => c.plugin_id === encoderPluginId && !c.plugin_id.startsWith('seer.output-child.')
+					(c) => c.plugin_id === encoderPluginId && !c.plugin_id.startsWith('arami.output-child.')
 				)
 			);
 			expect(found).toBe(true);
