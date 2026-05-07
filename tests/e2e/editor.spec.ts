@@ -19,22 +19,22 @@ test('pipeline is empty after load', async ({ editor }) => {
 });
 
 const adjustmentDefaults = [
-	{ id: 'seer.tone-curve', params: {} },
-	{ id: 'seer.color-mixer', params: { saturation: { Float: 0 } } },
-	{ id: 'seer.white-balance', params: { temperature: { Float: 6500 }, tint: { Float: 0 } } },
+	{ id: 'arami.tone-curve', params: {} },
+	{ id: 'arami.color-mixer', params: { saturation: { Float: 0 } } },
+	{ id: 'arami.white-balance', params: { temperature: { Float: 6500 }, tint: { Float: 0 } } },
 	{
-		id: 'seer.denoise',
+		id: 'arami.denoise',
 		params: { spatial_sigma: { Float: 1 }, range_sigma: { Float: 0.1 }, iterations: { Int: 1 } }
 	},
 	{
-		id: 'seer.sharpen',
+		id: 'arami.sharpen',
 		params: { radius: { Float: 1 }, amount: { Float: 0 }, threshold: { Float: 0 } }
 	},
-	{ id: 'seer.clarity', params: { strength: { Float: 0 } } }
+	{ id: 'arami.clarity', params: { strength: { Float: 0 } } }
 ] as const;
 
 for (const { id, params } of adjustmentDefaults) {
-	test(`add ${id.replace('seer.', '')} and verify default params`, async ({ editor }) => {
+	test(`add ${id.replace('arami.', '')} and verify default params`, async ({ editor }) => {
 		await editor.addAdjustment(id);
 		await editor.expectAdjustmentExists(id);
 		await editor.expectPipelineLength(1);

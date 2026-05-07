@@ -1,6 +1,6 @@
 # Geometry — Crop and Rotate
 
-**Component:** seer-editor::adjustment (Category B), canvas overlay system
+**Component:** arami-editor::adjustment (Category B), canvas overlay system
 **Part of:** Circe image editing engine
 
 ## Context
@@ -392,7 +392,7 @@ distracting edge element) and the output can be Framed at different
 ratios (3:2 master + 4:5 Instagram crop).
 
 **Code reuse:** Crop's canvas interaction is driven by `FramerState`
-from `seer-viewer`. The same Rust controller, the same WASM bindings,
+from `arami-viewer`. The same Rust controller, the same WASM bindings,
 the same pan/zoom/clamp/ratio math. The only difference is where the
 crop rect goes: Framer writes it to a Variant definition; Crop writes
 it as normalized params to the EditGraph adjustment.
@@ -407,7 +407,7 @@ the full three-layer architecture: protocol (Layer 0), interaction
 primitives (Layer 1), and adjustment overlays (Layer 2).
 
 Crop uses the `FramerDrag` primitive (Layer 1) wrapping `FramerState`
-from `seer-viewer`. Rotate uses `AngleDrag`. Both are concrete overlay
+from `arami-viewer`. Rotate uses `AngleDrag`. Both are concrete overlay
 components (Layer 2) that follow the standard `OverlayProps` interface
 (Layer 0).
 

@@ -1,6 +1,6 @@
-# Extending Seer — Plugin Author Guide
+# Extending Arami — Plugin Author Guide
 
-This guide covers how to write plugins for Seer's image editing pipeline. Seer's
+This guide covers how to write plugins for Arami's image editing pipeline. Arami's
 core adjustments use the exact same plugin interface as third-party plugins — there
 are no special code paths. Everything documented here is what the built-in White
 Balance, Tone Curve, Sharpen, etc. actually use.
@@ -20,7 +20,7 @@ Balance, Tone Curve, Sharpen, etc. actually use.
 
 ## The Plugin Model
 
-Seer plugins follow a **declare-process** model:
+Arami plugins follow a **declare-process** model:
 
 1. **Declare parameters** — Your plugin returns a `ParamSchema` describing what
    controls the UI should render (sliders, toggles, dropdowns, curve editors, etc.)
@@ -54,12 +54,12 @@ You never write UI code. You never handle zones. You never manage state.
 Every plugin has a unique reverse-domain ID:
 
 ```
-seer.white-balance       — built-in (reserved seer.* namespace)
+arami.white-balance       — built-in (reserved arami.* namespace)
 com.filmdev.emulation    — third-party
 org.astro.stacking       — third-party
 ```
 
-The `seer.*` namespace is reserved for built-in plugins. Third-party plugins
+The `arami.*` namespace is reserved for built-in plugins. Third-party plugins
 use reverse-domain notation.
 
 ---
@@ -72,8 +72,8 @@ a new image. Here's the minimal structure:
 ### The `AdjustmentPlugin` Trait
 
 ```rust
-use seer_editor::pixel_buffer::PixelBuffer;
-use seer_editor::plugin::*;
+use arami_editor::pixel_buffer::PixelBuffer;
+use arami_editor::plugin::*;
 
 pub struct InvertPlugin;
 
@@ -161,7 +161,7 @@ impl AdjustmentPlugin for InvertPlugin {
 
 **Categories:**
 
-- `Source` — source image input (reserved for `seer.source`)
+- `Source` — source image input (reserved for `arami.source`)
 - `Color` — white balance, color grading, color space transforms
 - `Tone` — curves, levels, exposure, highlights/shadows
 - `Detail` — sharpening, denoising, clarity, texture
@@ -177,12 +177,12 @@ They don't constrain what your plugin does.
 For compiled-in plugins (same repo), register in `PluginRegistry::core()`:
 
 ```rust
-// In seer-editor/src/registry.rs
+// In arami-editor/src/registry.rs
 reg.register_adjustment(Box::new(my_plugin::InvertPlugin));
 ```
 
 For third-party WASM plugins, registration happens automatically when the
-`.seerplugin` package is loaded.
+`.aramiplugin` package is loaded.
 
 ---
 
@@ -195,9 +195,9 @@ and blending.
 ### The `ZoneGeneratorPlugin` Trait
 
 ```rust
-use seer_editor::pixel_buffer::PixelBuffer;
-use seer_editor::plugin::*;
-use seer_editor::zone::ZoneBuffer;
+use arami_editor::pixel_buffer::PixelBuffer;
+use arami_editor::plugin::*;
+use arami_editor::zone::ZoneBuffer;
 
 pub struct EdgeDetectZonePlugin;
 
@@ -370,7 +370,7 @@ Runtime: `ParamValue::Color(f32, f32, f32)`
 Editable spline curve (control points). Renders as a curve editor.
 
 ```rust
-use seer_editor::processing::tone_curve::ControlPoint;
+use arami_editor::processing::tone_curve::ControlPoint;
 
 ParamType::Curve(CurveParamDesc {
     default: vec![
@@ -574,7 +574,7 @@ fn output_in_range() {
 ### Running Tests
 
 ```bash
-cargo test -p seer-editor
+cargo test -p arami-editor
 ```
 
 For the built-in plugins, all tests live alongside the plugin implementations
@@ -584,11 +584,11 @@ and the processing functions they delegate to.
 
 ## Packaging
 
-Third-party plugins are distributed as `.seerplugin` packages — zip archives
+Third-party plugins are distributed as `.aramiplugin` packages — zip archives
 containing:
 
 ```
-com.example.my-plugin-1.0.0.seerplugin
+com.example.my-plugin-1.0.0.aramiplugin
 ├── manifest.toml        # Plugin metadata
 ├── plugin.wasm          # Compiled WASM binary
 ├── resources/           # Optional bundled data
@@ -604,7 +604,7 @@ com.example.my-plugin-1.0.0.seerplugin
 id = "com.example.my-plugin"
 name = "My Plugin"
 version = "1.0.0"
-seer-api = "1.0"
+arami-api = "1.0"
 description = "Does something cool with pixels"
 author = "Your Name"
 license = "MIT"
@@ -615,7 +615,7 @@ category = "creative"   # color, tone, detail, creative, correction, ai
 
 [capabilities]
 # Most plugins need no special capabilities
-# filesystem = { read = ["~/.seer/models/"], write = [] }
+# filesystem = { read = ["~/.arami/models/"], write = [] }
 # network = { allowed_hosts = ["api.example.com"] }
 
 [resources]
@@ -624,21 +624,21 @@ include = ["resources/**/*"]
 
 ### Installation
 
-- **Manual**: Place the `.seerplugin` file in `~/.seer/plugins/`
-- **Developer mode**: Point Seer at a local directory for rapid iteration
+- **Manual**: Place the `.aramiplugin` file in `~/.arami/plugins/`
+- **Developer mode**: Point Arami at a local directory for rapid iteration
 
 ---
 
 ## Trust Tiers
 
-Seer uses a layered trust model:
+Arami uses a layered trust model:
 
-| Tier          | Namespace    | Vetting                    | Description                                 |
-| ------------- | ------------ | -------------------------- | ------------------------------------------- |
-| **Core**      | `seer.*`     | CI-tested, ships with Seer | Built-in adjustments and zones              |
-| **Verified**  | `verified.*` | Reviewed by Seer team      | Passes automated test suite + manual review |
-| **Community** | `contrib.*`  | Automated tests only       | Community-published, user reviews visible   |
-| **Local**     | any          | None                       | Sideloaded from disk, developer use         |
+| Tier          | Namespace    | Vetting                     | Description                                 |
+| ------------- | ------------ | --------------------------- | ------------------------------------------- |
+| **Core**      | `arami.*`    | CI-tested, ships with Arami | Built-in adjustments and zones              |
+| **Verified**  | `verified.*` | Reviewed by Arami team      | Passes automated test suite + manual review |
+| **Community** | `contrib.*`  | Automated tests only        | Community-published, user reviews visible   |
+| **Local**     | any          | None                        | Sideloaded from disk, developer use         |
 
 The test harness validates:
 
@@ -658,8 +658,8 @@ The test harness validates:
 A full adjustment plugin that applies film stock color grading with grain.
 
 ```rust
-use seer_editor::pixel_buffer::PixelBuffer;
-use seer_editor::plugin::*;
+use arami_editor::pixel_buffer::PixelBuffer;
+use arami_editor::plugin::*;
 
 /// Film emulation with stock-specific color grading and grain.
 pub struct FilmEmulationPlugin;

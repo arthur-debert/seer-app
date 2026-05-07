@@ -1,7 +1,7 @@
 /**
- * Viewport layout — thin WASM bridge over seer_viewer::viewport.
+ * Viewport layout — thin WASM bridge over arami_viewer::viewport.
  *
- * Types mirror seer_viewer::geometry — see docs/dev/conventions.md.
+ * Types mirror arami_viewer::geometry — see docs/dev/conventions.md.
  * All math lives in Rust; this module only handles WASM init and call forwarding.
  */
 
@@ -9,10 +9,10 @@ import wasmInit, {
 	compute_view_layout as wasmComputeViewLayout,
 	ViewerState,
 	FramerState
-} from '$viewer_wasm/seer_viewer_wasm.js';
+} from '$viewer_wasm/arami_viewer_wasm.js';
 
 export { ViewerState, FramerState };
-import wasmUrl from '$viewer_wasm/seer_viewer_wasm_bg.wasm?url';
+import wasmUrl from '$viewer_wasm/arami_viewer_wasm_bg.wasm?url';
 
 export interface Point {
 	x: number;

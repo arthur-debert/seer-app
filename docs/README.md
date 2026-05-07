@@ -1,4 +1,4 @@
-# Seer — Vision
+# Arami — Vision
 
 ## The Problem with Professional Photo Editing
 
@@ -26,16 +26,16 @@ each rendering, and a 3:2 master alongside a 16:9 crop for web headers and a
 application treats them as unrelated entities. The photographer knows they are
 the same image.
 
-## Seer's Position
+## Arami's Position
 
-Seer rethinks the technical professional and enthusiast editing experience
+Arami rethinks the technical professional and enthusiast editing experience
 by leveraging state of the art — AI, modern image processing algorithms, and
 computational photography — not for a consumer auto button, but in a pro-grade
 experience that adds value while preserving fine-grained control.
 
 The core principle: **intelligence as authoring, not as a black box.**
 
-When Seer applies AI analysis to an image, the output is not new pixels.
+When Arami applies AI analysis to an image, the output is not new pixels.
 It is editable graph primitives — zones, adjustments, curves — expressed
 in the same vocabulary the photographer already uses. The AI automates the
 tedious parts (region identification, starting-point estimation) and exposes
@@ -45,7 +45,7 @@ the result for professional refinement.
 
 ### Semantic Analysis as Foundation
 
-Every image opened in Seer is analyzed by a semantic segmentation model.
+Every image opened in Arami is analyzed by a semantic segmentation model.
 The result is a set of zones — sky, person, vegetation, structure — that become
 first-class objects in the document. These zones are:
 
@@ -60,7 +60,7 @@ by a traditional tool.
 
 ### Profiles: Intelligent Starting Points
 
-When an image is opened, Seer applies a profile — a set of adjustments
+When an image is opened, Arami applies a profile — a set of adjustments
 pre-configured with semantic zones. A Monochrome profile might produce:
 
 ```text
@@ -80,7 +80,7 @@ profile is a populated graph, not a different mode.
 
 This is fundamentally different from Lightroom's adaptive presets, which are
 opaque: they produce pixels and you adjust sliders that re-run the black box.
-Seer decomposes the intelligence into the same primitives the user works
+Arami decomposes the intelligence into the same primitives the user works
 with directly.
 
 ### Adjustment-Based Editing
@@ -103,7 +103,7 @@ design principles, and adjustment ontology.
 
 ## Working Vocabulary
 
-Seer's data model is built on the principle that **images are not files**:
+Arami's data model is built on the principle that **images are not files**:
 
 | Term          | Meaning                                                                                                                               |
 | ------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
@@ -130,9 +130,9 @@ Circe's edit graph is what produces a **Rendering**. A Rendering at a specific
 crop becomes a **Variant** (via the Crop adjustment in the pipeline, or Framer
 applied post-pipeline).
 
-## Seer Suite
+## Arami Suite
 
-Seer is a suite of tools for the photographic workflow:
+Arami is a suite of tools for the photographic workflow:
 
 - **Circe** — non-destructive image editing with a semantic-intelligence-driven
   pipeline. The core editing engine. See [specs/edit-pipeline.md](specs/edit-pipeline.md).

@@ -94,7 +94,7 @@
 	/** Best-effort map from human name to plugin kind for UpdateParams mutations. */
 	function nameToKind(name: string): string | null {
 		const lower = name.toLowerCase().replace(/\s+/g, '-');
-		const candidate = `seer.${lower}`;
+		const candidate = `arami.${lower}`;
 		if (candidate in pluginIconMap) return candidate;
 		return null;
 	}

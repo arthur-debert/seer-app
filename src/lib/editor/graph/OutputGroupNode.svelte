@@ -81,8 +81,8 @@
 				>
 					<span class:opacity-50={!child.enabled}>
 						{child.plugin_id
-							.replace('seer.output-child.', '')
-							.replace('seer.output.', '')
+							.replace('arami.output-child.', '')
+							.replace('arami.output.', '')
 							.toUpperCase()}
 					</span>
 				</button>

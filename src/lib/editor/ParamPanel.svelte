@@ -63,7 +63,7 @@
 	// --- Crop helpers ---
 
 	function getCropParams(): CropParams | null {
-		if (adjustment?.plugin_id !== 'seer.crop') return null;
+		if (adjustment?.plugin_id !== 'arami.crop') return null;
 		const p = localParams;
 		return {
 			x: unwrapFloat(p.x),
@@ -123,7 +123,7 @@
 		<div class="text-text-muted text-sm">
 			<p class="text-text-secondary font-medium">{adjustment.name}</p>
 
-			{#if adjustment.plugin_id === 'seer.crop'}
+			{#if adjustment.plugin_id === 'arami.crop'}
 				{@const cp = getCropParams()}
 				{#if cp}
 					{@const currentRatioIndex = CROP_RATIOS.findIndex(

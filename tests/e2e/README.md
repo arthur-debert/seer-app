@@ -67,7 +67,7 @@ All use progressive backoff intervals (100ms → 200ms → 500ms → 1s).
 
 ```typescript
 // Good: assert on application state
-await editor.expectAdjustmentExists('seer.tone-curve');
+await editor.expectAdjustmentExists('arami.tone-curve');
 await editor.expectPipelineLength(2);
 
 // Bad: assert on DOM structure

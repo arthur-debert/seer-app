@@ -5,8 +5,8 @@
  * protocol defined in pipeline-worker-protocol.ts.
  */
 
-import wasmInit, { EditGraph } from '$editor_wasm/seer_editor_wasm.js';
-import wasmUrl from '$editor_wasm/seer_editor_wasm_bg.wasm?url';
+import wasmInit, { EditGraph } from '$editor_wasm/arami_editor_wasm.js';
+import wasmUrl from '$editor_wasm/arami_editor_wasm_bg.wasm?url';
 import type { MainToWorkerMessage, WorkerToMainMessage, Action } from './pipeline-worker-protocol';
 import type { VersionNode, TagEntry } from './editor-bridge';
 

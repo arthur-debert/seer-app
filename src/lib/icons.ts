@@ -244,44 +244,44 @@ export const icons = {
 	}
 } as const satisfies Record<string, IconEntry>;
 
-/** Map from plugin kind string (e.g. "seer.tone-curve") to registry key. */
+/** Map from plugin kind string (e.g. "arami.tone-curve") to registry key. */
 export const pluginIconMap: Record<string, keyof typeof icons> = {
-	'seer.source.standard': 'source',
-	'seer.white-balance': 'whiteBalance',
-	'seer.color-mixer': 'colorMixer',
-	'seer.monochrome': 'monochrome',
-	'seer.clahe': 'clahe',
-	'seer.tone-curve': 'toneCurve',
-	'seer.denoise': 'denoise',
-	'seer.sharpen': 'sharpen',
-	'seer.clarity': 'clarity',
-	'seer.crop': 'crop'
+	'arami.source.standard': 'source',
+	'arami.white-balance': 'whiteBalance',
+	'arami.color-mixer': 'colorMixer',
+	'arami.monochrome': 'monochrome',
+	'arami.clahe': 'clahe',
+	'arami.tone-curve': 'toneCurve',
+	'arami.denoise': 'denoise',
+	'arami.sharpen': 'sharpen',
+	'arami.clarity': 'clarity',
+	'arami.crop': 'crop'
 };
 
 /** Adjustment plugins that can be added via the toolbar (excludes Source). */
 export const addablePlugins: { pluginId: string; label: string; iconKey: keyof typeof icons }[] = [
-	{ pluginId: 'seer.white-balance', label: 'White Balance', iconKey: 'whiteBalance' },
-	{ pluginId: 'seer.color-mixer', label: 'Color Mixer', iconKey: 'colorMixer' },
-	{ pluginId: 'seer.monochrome', label: 'Monochrome', iconKey: 'monochrome' },
-	{ pluginId: 'seer.clahe', label: 'CLAHE', iconKey: 'clahe' },
-	{ pluginId: 'seer.tone-curve', label: 'Tone Curve', iconKey: 'toneCurve' },
-	{ pluginId: 'seer.denoise', label: 'Denoise', iconKey: 'denoise' },
-	{ pluginId: 'seer.sharpen', label: 'Sharpen', iconKey: 'sharpen' },
-	{ pluginId: 'seer.clarity', label: 'Clarity', iconKey: 'clarity' }
+	{ pluginId: 'arami.white-balance', label: 'White Balance', iconKey: 'whiteBalance' },
+	{ pluginId: 'arami.color-mixer', label: 'Color Mixer', iconKey: 'colorMixer' },
+	{ pluginId: 'arami.monochrome', label: 'Monochrome', iconKey: 'monochrome' },
+	{ pluginId: 'arami.clahe', label: 'CLAHE', iconKey: 'clahe' },
+	{ pluginId: 'arami.tone-curve', label: 'Tone Curve', iconKey: 'toneCurve' },
+	{ pluginId: 'arami.denoise', label: 'Denoise', iconKey: 'denoise' },
+	{ pluginId: 'arami.sharpen', label: 'Sharpen', iconKey: 'sharpen' },
+	{ pluginId: 'arami.clarity', label: 'Clarity', iconKey: 'clarity' }
 ];
 
 /** Geometry plugins that can be added via the toolbar. */
 export const addableGeometry: { pluginId: string; label: string; iconKey: keyof typeof icons }[] = [
-	{ pluginId: 'seer.crop', label: 'Crop', iconKey: 'crop' }
+	{ pluginId: 'arami.crop', label: 'Crop', iconKey: 'crop' }
 ];
 
 /** Zone generator plugins that can be added via the toolbar. */
 export const addableZones: { pluginId: string; label: string; iconKey: keyof typeof icons }[] = [
-	{ pluginId: 'seer.zone.luminance', label: 'Luminance', iconKey: 'zoneLuminance' },
-	{ pluginId: 'seer.zone.color-range', label: 'Color Range', iconKey: 'zoneColor' },
-	{ pluginId: 'seer.zone.gradient', label: 'Gradient', iconKey: 'zoneGradient' },
-	{ pluginId: 'seer.zone.brush', label: 'Brush', iconKey: 'zoneBrush' },
-	{ pluginId: 'seer.zone.segmentation', label: 'Segmentation', iconKey: 'ai' }
+	{ pluginId: 'arami.zone.luminance', label: 'Luminance', iconKey: 'zoneLuminance' },
+	{ pluginId: 'arami.zone.color-range', label: 'Color Range', iconKey: 'zoneColor' },
+	{ pluginId: 'arami.zone.gradient', label: 'Gradient', iconKey: 'zoneGradient' },
+	{ pluginId: 'arami.zone.brush', label: 'Brush', iconKey: 'zoneBrush' },
+	{ pluginId: 'arami.zone.segmentation', label: 'Segmentation', iconKey: 'ai' }
 ];
 
 export interface ComboDefinition {
@@ -297,12 +297,12 @@ export const combos: ComboDefinition[] = [
 		id: 'adaptive-bw',
 		label: 'Adaptive BW',
 		pluginIds: [
-			'seer.monochrome',
-			'seer.clahe',
-			'seer.tone-curve',
-			'seer.tone-curve',
-			'seer.tone-curve',
-			'seer.tone-curve'
+			'arami.monochrome',
+			'arami.clahe',
+			'arami.tone-curve',
+			'arami.tone-curve',
+			'arami.tone-curve',
+			'arami.tone-curve'
 		]
 	}
 ];

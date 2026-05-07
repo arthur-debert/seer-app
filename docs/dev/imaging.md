@@ -4,7 +4,7 @@
 > at a point in time. Specific library versions and statuses may have changed.
 > Verify against crates.io before adopting.
 
-Seer's imaging stack: Tauri v2 + wgpu shaders (WGSL), pure-Rust preferred, MIT/BSD/Apache licensing only.
+Arami's imaging stack: Tauri v2 + wgpu shaders (WGSL), pure-Rust preferred, MIT/BSD/Apache licensing only.
 
 ---
 
@@ -12,9 +12,9 @@ Seer's imaging stack: Tauri v2 + wgpu shaders (WGSL), pure-Rust preferred, MIT/B
 
 sRGB, Linear RGB, Lab, XYZ, ProPhoto RGB, Display P3, Oklab, chromatic adaptation.
 
-| Library        | License          | Pure Rust | Role                                                                                                                                                                                                                                                                                                           |
-| -------------- | ---------------- | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **`kolor-64`** | MIT / Apache-2.0 | Yes       | **Primary.** 24 built-in color spaces (Rec. 2020, sRGB, Oklab, Oklch, ProPhoto, Display P3, etc.). Chromatic adaptation (Bradford, Von Kries, CAT02). Raw 3x3 matrix extraction. no_std + WASM support, f64 precision. Seer's `color_space.rs` wraps kolor-64 with `BulkConversion` for per-pixel performance. |
+| Library        | License          | Pure Rust | Role                                                                                                                                                                                                                                                                                                            |
+| -------------- | ---------------- | --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`kolor-64`** | MIT / Apache-2.0 | Yes       | **Primary.** 24 built-in color spaces (Rec. 2020, sRGB, Oklab, Oklch, ProPhoto, Display P3, etc.). Chromatic adaptation (Bradford, Von Kries, CAT02). Raw 3x3 matrix extraction. no_std + WASM support, f64 precision. Arami's `color_space.rs` wraps kolor-64 with `BulkConversion` for per-pixel performance. |
 
 For ICC profile handling (embedded camera/monitor profiles):
 

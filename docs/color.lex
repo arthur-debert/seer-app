@@ -1,6 +1,6 @@
 Scene-Referred Color Pipeline
 
-Seer's pipeline moves from display-referred sRGB to a scene-referred Linear Rec. 2020 working space. This document describes the architecture: what changes, what stays, and how the pieces fit together.
+Arami's pipeline moves from display-referred sRGB to a scene-referred Linear Rec. 2020 working space. This document describes the architecture: what changes, what stays, and how the pieces fit together.
 
 The core insight is that both source paths (RAW via libraw and standard images via the `image` crate) already output linear f32 data. The pipeline was treating it as gamma-encoded. This migration makes the linear assumption explicit, widens the gamut to Rec. 2020, and adds a proper Output Device Transform (ODT) to convert scene data to display.
 
@@ -80,7 +80,7 @@ The core insight is that both source paths (RAW via libraw and standard images v
 
     3.3. Future ODTs
 
-        The `OdtPlugin` trait allows additional view transforms (filmic, AGX-style) without changing the pipeline. Each ODT is registered in the plugin registry with an ID like `seer.odt.sigmoid` or `seer.odt.filmic`.
+        The `OdtPlugin` trait allows additional view transforms (filmic, AGX-style) without changing the pipeline. Each ODT is registered in the plugin registry with an ID like `arami.odt.sigmoid` or `arami.odt.filmic`.
 
 
 4. Per-Tool Color Spaces

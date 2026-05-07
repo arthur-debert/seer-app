@@ -1,7 +1,7 @@
 @import 'tailwindcss';
 
 /*
- * Seer Design Tokens
+ * Arami Design Tokens
  *
  * Semantic color tokens for the entire UI. Components reference these via
  * Tailwind utilities (e.g. bg-surface-0, text-muted, border-border).

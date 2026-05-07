@@ -38,26 +38,27 @@
 	/** Extract the encoder format badge from a group's children. */
 	function encoderLabel(group: OutputGroupInfo): string {
 		const encoder = group.children.find(
-			(c) => c.plugin_id.startsWith('seer.output.') && !c.plugin_id.startsWith('seer.output-child.')
+			(c) =>
+				c.plugin_id.startsWith('arami.output.') && !c.plugin_id.startsWith('arami.output-child.')
 		);
 		if (!encoder) return '?';
-		return encoder.plugin_id.replace('seer.output.', '').toUpperCase();
+		return encoder.plugin_id.replace('arami.output.', '').toUpperCase();
 	}
 
 	/** Friendly name for a child plugin. */
 	function childLabel(child: OutputChildInfo): string {
-		if (child.plugin_id === 'seer.output-child.resize') return 'Resize';
-		if (child.plugin_id === 'seer.output-child.reframe') return 'Reframe';
-		if (child.plugin_id === 'seer.output-child.metadata') return 'Metadata';
+		if (child.plugin_id === 'arami.output-child.resize') return 'Resize';
+		if (child.plugin_id === 'arami.output-child.reframe') return 'Reframe';
+		if (child.plugin_id === 'arami.output-child.metadata') return 'Metadata';
 		// Encoder
-		return child.plugin_id.replace('seer.output.', '').toUpperCase();
+		return child.plugin_id.replace('arami.output.', '').toUpperCase();
 	}
 
 	/** Whether a child is the encoder (anchor — not removable). */
 	function isEncoder(child: OutputChildInfo): boolean {
 		return (
-			child.plugin_id.startsWith('seer.output.') &&
-			!child.plugin_id.startsWith('seer.output-child.')
+			child.plugin_id.startsWith('arami.output.') &&
+			!child.plugin_id.startsWith('arami.output-child.')
 		);
 	}
 
@@ -65,9 +66,9 @@
 	function missingChildren(group: OutputGroupInfo): string[] {
 		const existing = new Set(group.children.map((c) => c.plugin_id));
 		const optional = [
-			'seer.output-child.resize',
-			'seer.output-child.reframe',
-			'seer.output-child.metadata'
+			'arami.output-child.resize',
+			'arami.output-child.reframe',
+			'arami.output-child.metadata'
 		];
 		return optional.filter((id) => !existing.has(id));
 	}
@@ -285,7 +286,7 @@
 								{#if missing.length > 0}
 									<div class="flex flex-wrap gap-1 pt-0.5">
 										{#each missing as pluginId (pluginId)}
-											{@const label = pluginId.replace('seer.output-child.', '')}
+											{@const label = pluginId.replace('arami.output-child.', '')}
 											<button
 												class="text-text-faint hover:text-text-muted text-[10px]"
 												onclick={(e) => {

@@ -1,6 +1,6 @@
 # Node Editor Package Evaluation
 
-Evaluation of Svelte-compatible node editor libraries for Seer's pipeline UI.
+Evaluation of Svelte-compatible node editor libraries for Arami's pipeline UI.
 Conducted March 2026.
 
 ## Candidates
@@ -21,7 +21,7 @@ rendering model makes embedding Svelte components inside nodes impractical.
 
 ## Svelte 5 Compatibility — Critical Filter
 
-Seer uses Svelte 5 with runes. This is a hard requirement.
+Arami uses Svelte 5 with runes. This is a hard requirement.
 
 - **Svelte Flow**: YES. v1.0 (May 2025) was a ground-up rewrite for Svelte 5
   runes. Peer dep requires `svelte ^5.25.0`. No Svelte 4 legacy.
@@ -76,7 +76,7 @@ drag conflicts. This is documented and standard practice.
 `Control` subclass, then a Svelte component mapping. The abstraction layer
 between "I want a slider here" and "the slider renders" is thicker.
 
-**Verdict**: Svelte Flow. Embedding Seer's ParamSchema-driven controls (float
+**Verdict**: Svelte Flow. Embedding Arami's ParamSchema-driven controls (float
 sliders, curve editors, color pickers, toggles, dropdowns) is trivially natural.
 
 ### Auto-Layout
@@ -88,7 +88,7 @@ sliders, curve editors, color pickers, toggles, dropdowns) is trivially natural.
 - **D3-Force** — physics-based layouts
 
 You run the layout externally and set node positions. This is the right
-architecture for Seer: the layout algorithm choice (top-to-bottom pipeline
+architecture for Arami: the layout algorithm choice (top-to-bottom pipeline
 with phase grouping) is domain-specific and shouldn't be locked to the
 library's built-in.
 
@@ -103,7 +103,7 @@ control; Rete's plugin is more turnkey.
 **Svelte Flow**: Custom edges are Svelte components receiving `EdgeProps` with
 source/target coordinates. Use `<BaseEdge>` with path utilities or full custom
 SVG. Per-edge types, colors, styles are all straightforward. Edge types map
-well to Seer's phase topology (Condenser, Linear, Diffuser).
+well to Arami's phase topology (Condenser, Linear, Diffuser).
 
 **Rete.js**: Custom connection components via `customize.connection`. Same
 capability, more indirection.
@@ -137,7 +137,7 @@ Base styles required (`base.css`), default styles optional (`style.css`).
 overrides rather than a CSS variable system.
 
 **Verdict**: Svelte Flow. CSS variables and Tailwind integration align with
-Seer's existing frontend stack (Tailwind for styling). No additional build
+Arami's existing frontend stack (Tailwind for styling). No additional build
 deps.
 
 ### Performance at Scale
@@ -150,7 +150,7 @@ React Flow (same engine) handles thousands of nodes in production.
 nodes with simple rectangles at low zoom. Historical performance issues with
 40-50+ nodes (2018 report, likely improved since).
 
-**Verdict**: Svelte Flow for typical Seer pipelines (10-50 nodes). Rete's LOD
+**Verdict**: Svelte Flow for typical Arami pipelines (10-50 nodes). Rete's LOD
 would matter only at much larger scales.
 
 ### Built-in Components
@@ -198,7 +198,7 @@ Criteria rated 1-5 (5 = best).
 
 **Svelte Flow (`@xyflow/svelte`) is the clear choice.**
 
-It wins on every criterion that matters for Seer:
+It wins on every criterion that matters for Arami:
 
 1. **Svelte 5 native**: Ground-up rewrite for runes. No compatibility shims.
 2. **Component-first nodes**: A node is a Svelte component. Embedding
@@ -209,11 +209,11 @@ It wins on every criterion that matters for Seer:
    framework friction.
 4. **Funded, active team**: xyflow GmbH ships monthly releases. React Flow
    (same codebase) powers Stripe and Typeform in production.
-5. **Tailwind + CSS variables**: Matches Seer's existing frontend stack.
+5. **Tailwind + CSS variables**: Matches Arami's existing frontend stack.
 6. **Touch + keyboard**: Built-in, not afterthoughts.
 
 The one area where work is needed is auto-layout (external via Dagre or Elk.js),
-but this is actually preferable: Seer's top-to-bottom phased pipeline layout is
+but this is actually preferable: Arami's top-to-bottom phased pipeline layout is
 domain-specific and should not be constrained by a library's built-in algorithm.
 
 Svelvet is eliminated: no Svelte 5 support, stale for 13+ months, cohort-driven

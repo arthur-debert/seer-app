@@ -17,12 +17,12 @@ import {
 	initSync,
 	compute_view_layout,
 	ViewerState
-} from '../../../wasm/seer-viewer-wasm/pkg/seer_viewer_wasm.js';
+} from '../../../wasm/arami-viewer-wasm/pkg/arami_viewer_wasm.js';
 
 beforeAll(() => {
 	const wasmPath = resolve(
 		__dirname,
-		'../../../wasm/seer-viewer-wasm/pkg/seer_viewer_wasm_bg.wasm'
+		'../../../wasm/arami-viewer-wasm/pkg/arami_viewer_wasm_bg.wasm'
 	);
 	const wasmBytes = readFileSync(wasmPath);
 	initSync({ module: wasmBytes });

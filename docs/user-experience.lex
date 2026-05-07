@@ -1,6 +1,6 @@
-The Seer User Experience
+The Arami User Experience
 
-This document covers the principles, motivation and guidelines for the Seer editing experience. It is not a technical document on implementation, frameworks or other concrete code aspects. For research supporting these ideas, see [./research/node-based-ui.md] and [./research/direct-manipulation.md].
+This document covers the principles, motivation and guidelines for the Arami editing experience. It is not a technical document on implementation, frameworks or other concrete code aspects. For research supporting these ideas, see [./research/node-based-ui.md] and [./research/direct-manipulation.md].
 
 
 1. The Status Quo
@@ -12,11 +12,11 @@ This document covers the principles, motivation and guidelines for the Seer edit
     The fundamental failure is _split attention_: the editing result lives in the canvas, the editing controls live in a distant sidebar, and the editing structure lives in yet another panel. Users labor mentally, visually and mechanically through a disconnected interface where the three representations of the same work are never co-located.
 
 
-2. The Seer Perspective
+2. The Arami Perspective
 
     The blueprint for the user experience is a by-product of the decades of accumulated knowledge in high complexity applications in the general imaging domain, as well as a tight interplay with the technical design: the linear pipeline, the plugin architecture and the parameter schema system (see [./readme.lex]). That is, it bridges users' needs and mental model first, ergonomics second and software engineering specifics third, in the hope of achieving something that is easy to learn, powerful to extend and cheap to implement (hence reliable and robust).
 
-    Where incumbents separate _what_ (parameters), _where_ (graph structure) and _result_ (canvas) into three disconnected panes, Seer collapses them: the node graph _is_ the editing interface, the canvas provides direct feedback, and transient overlays connect the two.
+    Where incumbents separate _what_ (parameters), _where_ (graph structure) and _result_ (canvas) into three disconnected panes, Arami collapses them: the node graph _is_ the editing interface, the canvas provides direct feedback, and transient overlays connect the two.
 
 
 3. Node / Pipeline Based UI

@@ -1,17 +1,17 @@
 /**
- * Editor WASM bridge -- thin wrapper over seer_editor_wasm::EditGraph.
+ * Editor WASM bridge -- thin wrapper over arami_editor_wasm::EditGraph.
  *
  * All edit logic lives in Rust; this module handles WASM init and type forwarding.
  */
 
-import wasmInit, { EditGraph } from '$editor_wasm/seer_editor_wasm.js';
-import wasmUrl from '$editor_wasm/seer_editor_wasm_bg.wasm?url';
+import wasmInit, { EditGraph } from '$editor_wasm/arami_editor_wasm.js';
+import wasmUrl from '$editor_wasm/arami_editor_wasm_bg.wasm?url';
 
 export { EditGraph };
 
 // Augment EditGraph -- svelte-check cannot resolve .d.ts from wasm pkg,
 // so all non-constructor methods used in .svelte files must be declared here.
-declare module '$editor_wasm/seer_editor_wasm.js' {
+declare module '$editor_wasm/arami_editor_wasm.js' {
 	interface EditGraph {
 		pipeline(): AdjustmentInfo[];
 		geometry_pipeline(): GeometryInfo[];
@@ -74,9 +74,9 @@ declare module '$editor_wasm/seer_editor_wasm.js' {
 
 // --- Version types -------------------------------------------------------
 //
-// Read-only mirrors of seer_editor version_tree types. The canonical definitions
+// Read-only mirrors of arami_editor version_tree types. The canonical definitions
 // and all recording/coalescing logic live in Rust.
-// See: seer-core/seer-editor/src/versioning/version_tree.rs
+// See: arami-core/arami-editor/src/versioning/version_tree.rs
 
 export interface VersionNode {
 	id: string;
@@ -176,7 +176,7 @@ export interface ParamSchema {
 	groups: ParamGroup[];
 }
 
-// ParamType is an externally-tagged enum from Rust (mirrors seer_editor::plugin::ParamType)
+// ParamType is an externally-tagged enum from Rust (mirrors arami_editor::plugin::ParamType)
 export type ParamType =
 	| { Float: { min: number; max: number; default: number; step: number } }
 	| { Int: { min: number; max: number; default: number } }

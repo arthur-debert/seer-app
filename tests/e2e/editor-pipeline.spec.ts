@@ -29,19 +29,19 @@ test('full pipeline: load → BW → segmentation → render', async ({ page, ed
 	});
 
 	await test.step('build adaptive BW pipeline', async () => {
-		await editor.addAdjustment('seer.monochrome');
-		await editor.addAdjustment('seer.clahe');
-		await editor.addAdjustment('seer.tone-curve');
-		await editor.addZone('seer.zone.segmentation');
+		await editor.addAdjustment('arami.monochrome');
+		await editor.addAdjustment('arami.clahe');
+		await editor.addAdjustment('arami.tone-curve');
+		await editor.addZone('arami.zone.segmentation');
 	});
 
 	await test.step('verify pipeline structure', async () => {
 		const state = await editor.getState();
 		expect(state.adjustments).toHaveLength(3);
 		expect(state.adjustments.map((a) => a.plugin_id)).toEqual([
-			'seer.monochrome',
-			'seer.clahe',
-			'seer.tone-curve'
+			'arami.monochrome',
+			'arami.clahe',
+			'arami.tone-curve'
 		]);
 		expect(state.zones.length).toBeGreaterThan(0);
 	});

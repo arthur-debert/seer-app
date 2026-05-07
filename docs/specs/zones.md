@@ -12,7 +12,7 @@ what to do about it. "The sky needs darkening. The subject needs
 lifting. The foliage needs separation." The regions come first. The
 adjustments follow.
 
-Seer makes zones the primary organizing concept. The question is not
+Arami makes zones the primary organizing concept. The question is not
 "which adjustment am I editing?" but "which part of the image am I
 working on?" Adjustments are verbs applied to zones, not the other way
 around.
@@ -367,7 +367,7 @@ changes.
 
 ## 4. How This Relates to the Current Architecture
 
-The current `seer-editor` implementation provides the foundation:
+The current `arami-editor` implementation provides the foundation:
 
 | Current                                                | Extension needed                                                                               |
 | ------------------------------------------------------ | ---------------------------------------------------------------------------------------------- |
@@ -388,7 +388,7 @@ Zones remain a separate registry. The extensions are:
 4. **Cascade logic** for zone deletion (which adjustments are affected,
    how to simplify Boolean expressions).
 5. **UI state** for zone selection, overlay rendering, and contextual
-   panel filtering — all in the frontend layer, not in `seer-editor`.
+   panel filtering — all in the frontend layer, not in `arami-editor`.
 
 ---
 
@@ -406,7 +406,7 @@ is implemented and testable.
 
 The zone backend is implemented; the zone-specific frontend UI is not.
 
-**Done** (see `seer-editor::zone` and `seer-editor::zone_plugins` cargo docs):
+**Done** (see `arami-editor::zone` and `arami-editor::zone_plugins` cargo docs):
 
 - All 5 zone generators (Luminance, ColorRange, Gradient, Brush, Semantic)
 - Zone evaluation, blending, boolean operations, inversion

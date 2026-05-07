@@ -73,7 +73,7 @@ export default defineConfig({
 		Icons({
 			compiler: 'svelte',
 			customCollections: {
-				seer: FileSystemIconLoader('./src/icons', (svg) =>
+				arami: FileSystemIconLoader('./src/icons', (svg) =>
 					svg.replace(/^<svg /, '<svg fill="currentColor" ')
 				)
 			}

@@ -1,4 +1,4 @@
-declare module '$viewer_wasm/seer_viewer_wasm.js' {
+declare module '$viewer_wasm/arami_viewer_wasm.js' {
 	export interface WasmViewLayout {
 		content_rect: {
 			origin: { x: number; y: number };
@@ -86,7 +86,7 @@ declare module '$viewer_wasm/seer_viewer_wasm.js' {
 	): WasmViewLayout;
 }
 
-declare module '$viewer_wasm/seer_viewer_wasm_bg.wasm?url' {
+declare module '$viewer_wasm/arami_viewer_wasm_bg.wasm?url' {
 	const url: string;
 	export default url;
 }

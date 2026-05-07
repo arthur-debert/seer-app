@@ -5,7 +5,7 @@
 #
 # On success: prints one-line PASS summary
 # On failure: prints inline error preview (first/last 20 lines)
-#             saves full log to /tmp/seer/hook-logs/<timestamp>/<name>.log
+#             saves full log to /tmp/arami/hook-logs/<timestamp>/<name>.log
 #
 # Logs are stored in /tmp/ so they auto-clean on reboot.
 
@@ -15,7 +15,7 @@ name="$1"
 shift
 
 # All checks in the same minute share a directory (one commit attempt = one dir)
-log_dir="/tmp/seer/hook-logs/$(date +%Y-%m-%d_%H%M)"
+log_dir="/tmp/arami/hook-logs/$(date +%Y-%m-%d_%H%M)"
 mkdir -p "$log_dir"
 logfile="${log_dir}/${name}.log"
 
