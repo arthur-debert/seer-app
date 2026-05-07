@@ -54,4 +54,4 @@ jobs:
 
       - run: bash scripts/check-frontend.sh
         env:
-          GH_TOKEN: ${{ secrets.SUBMODULE_TOKEN }}
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
