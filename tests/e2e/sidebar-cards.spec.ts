@@ -3,6 +3,7 @@
  * Tests the card-based pipeline sidebar that replaced the graph view.
  */
 import { test, expect } from './ui-interaction-fixture';
+import { Poll } from './lib/timeouts';
 
 test.describe('Sidebar Cards', () => {
 	test('phase groups are visible on startup', async ({ editor, page }) => {
@@ -64,14 +65,14 @@ test.describe('Sidebar Cards', () => {
 		await expect(async () => {
 			state = await editor.getState();
 			expect(state.adjustments.length).toBe(1);
-		}).toPass({ timeout: 5_000, intervals: [200] });
+		}).toPass(Poll.fast);
 
 		expect(state.adjustments[0].plugin_id).toBe('arami.tone-curve');
 	});
 
 	test('source node is always visible', async ({ editor, page }) => {
 		const state = await editor.getState();
-		expect(state).toBeTruthy();
+		expect(state.source.entries.length).toBeGreaterThan(0);
 		// The source node should be visible in the Image phase
 		await expect(page.getByText('Standard Image')).toBeVisible();
 	});

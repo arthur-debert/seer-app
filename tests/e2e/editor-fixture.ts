@@ -4,78 +4,10 @@
  */
 import { test as base, expect } from './base-fixture';
 import type { Page } from '@playwright/test';
+import type { EditorState, EditorWindow } from './lib/types';
+import { Poll } from './lib/timeouts';
 
 export { expect };
-
-/** Shape of __editorActions exposed by Editor.svelte in DEV mode. */
-interface EditorActions {
-	addAdjustment: (pluginId: string) => void;
-	addGeometry: (pluginId: string) => void;
-	addZone: (pluginId: string) => void;
-	removeAdjustment: (id: string) => void;
-	selectNode: (id: string) => void;
-	selectSource: () => void;
-	addExportGroup: (pluginId: string) => void;
-}
-
-interface EditorWindow {
-	__editorState: EditorState;
-	__editorActions: EditorActions;
-}
-
-/** Shape of __editorState exposed by Editor.svelte in DEV mode. */
-interface EditorState {
-	source: {
-		entries: Array<{
-			id: string;
-			plugin_id: string;
-			path: string;
-			width: number;
-			height: number;
-		}>;
-		merge: unknown;
-	};
-	adjustments: Array<{
-		id: string;
-		name: string;
-		plugin_id: string;
-		enabled: boolean;
-		params: Record<string, unknown>;
-		zone: unknown;
-	}>;
-	geometry: Array<{
-		id: string;
-		name: string;
-		plugin_id: string;
-		enabled: boolean;
-		params: Record<string, unknown>;
-	}>;
-	versionNodes: Array<{ id: string; label: string }>;
-	fullPath: Array<{ id: string; label: string }>;
-	headNodeId: string;
-	canUndo: boolean;
-	canRedo: boolean;
-	isAtLeaf: boolean;
-	tags: Array<{ name: string; nodeId: string }>;
-	evalError: { adjustmentId: string; error: string } | null;
-	schemas: Record<string, unknown>;
-	zones: Array<{ id: string; name: string; kind: string }>;
-	exportGroups: Array<{
-		id: string;
-		name: string;
-		enabled: boolean;
-		suffix: string;
-		path: unknown;
-		children: Array<{
-			id: string;
-			plugin_id: string;
-			params: Record<string, unknown>;
-			enabled: boolean;
-		}>;
-	}>;
-	imageSize: { width: number; height: number } | null;
-	error: string | undefined;
-}
 
 class EditorHarness {
 	constructor(
@@ -101,7 +33,7 @@ class EditorHarness {
 		await expect(async () => {
 			const state = await this.getState();
 			expect(state.adjustments.some((a) => a.plugin_id === pluginId)).toBe(true);
-		}).toPass({ timeout: 15_000, intervals: [200] });
+		}).toPass(Poll.action);
 	}
 
 	async addGeometry(pluginId: string): Promise<void> {
@@ -110,7 +42,7 @@ class EditorHarness {
 				() => !!(window as unknown as EditorWindow).__editorActions
 			);
 			expect(hasActions).toBe(true);
-		}).toPass({ timeout: 10_000, intervals: [200] });
+		}).toPass(Poll.action);
 		await this.page.evaluate(
 			(pid) => (window as unknown as EditorWindow).__editorActions.addGeometry(pid),
 			pluginId
@@ -118,7 +50,7 @@ class EditorHarness {
 		await expect(async () => {
 			const state = await this.getState();
 			expect(state.geometry.some((g) => g.plugin_id === pluginId)).toBe(true);
-		}).toPass({ timeout: 15_000, intervals: [200] });
+		}).toPass(Poll.action);
 	}
 
 	async addZone(pluginId: string): Promise<void> {
@@ -129,7 +61,7 @@ class EditorHarness {
 		await expect(async () => {
 			const state = await this.getState();
 			expect(state.zones.some((z) => z.name.length > 0)).toBe(true);
-		}).toPass({ timeout: 15_000, intervals: [200] });
+		}).toPass(Poll.action);
 	}
 
 	async selectSource(): Promise<void> {
@@ -194,35 +126,35 @@ class EditorHarness {
 			expect(state.imageSize).toBeTruthy();
 			expect(state.evalError).toBeNull();
 			expect(state.error).toBeUndefined();
-		}).toPass({ timeout: 30_000, intervals: [500] });
+		}).toPass(Poll.pipeline);
 	}
 
 	async expectAdjustmentExists(pluginId: string): Promise<void> {
 		await expect(async () => {
 			const state = await this.getState();
 			expect(state.adjustments.some((a) => a.plugin_id === pluginId)).toBe(true);
-		}).toPass({ timeout: 10_000, intervals: [200] });
+		}).toPass(Poll.action);
 	}
 
 	async expectAdjustmentNotExists(pluginId: string): Promise<void> {
 		await expect(async () => {
 			const state = await this.getState();
 			expect(state.adjustments.some((a) => a.plugin_id === pluginId)).toBe(false);
-		}).toPass({ timeout: 10_000, intervals: [200] });
+		}).toPass(Poll.action);
 	}
 
 	async expectGeometryExists(pluginId: string): Promise<void> {
 		await expect(async () => {
 			const state = await this.getState();
 			expect(state.geometry.some((g) => g.plugin_id === pluginId)).toBe(true);
-		}).toPass({ timeout: 10_000, intervals: [200] });
+		}).toPass(Poll.action);
 	}
 
 	async expectGeometryNotExists(pluginId: string): Promise<void> {
 		await expect(async () => {
 			const state = await this.getState();
 			expect(state.geometry.some((g) => g.plugin_id === pluginId)).toBe(false);
-		}).toPass({ timeout: 10_000, intervals: [200] });
+		}).toPass(Poll.action);
 	}
 
 	async expectAdjustmentParams(pluginId: string, expected: Record<string, unknown>): Promise<void> {
@@ -234,7 +166,7 @@ class EditorHarness {
 			for (const [key, value] of Object.entries(expected)) {
 				expect(params[key]).toEqual(value);
 			}
-		}).toPass({ timeout: 10_000, intervals: [200] });
+		}).toPass(Poll.action);
 	}
 
 	async expectGeometryParams(pluginId: string, expected: Record<string, unknown>): Promise<void> {
@@ -246,7 +178,7 @@ class EditorHarness {
 			for (const [key, value] of Object.entries(expected)) {
 				expect(params[key]).toEqual(value);
 			}
-		}).toPass({ timeout: 10_000, intervals: [200] });
+		}).toPass(Poll.action);
 	}
 
 	async expectNoErrors(): Promise<void> {
@@ -260,21 +192,21 @@ class EditorHarness {
 		await expect(async () => {
 			const state = await this.getState();
 			expect(state.imageSize).toEqual({ width: w, height: h });
-		}).toPass({ timeout: 15_000, intervals: [500] });
+		}).toPass(Poll.action);
 	}
 
 	async expectPipelineLength(n: number): Promise<void> {
 		await expect(async () => {
 			const state = await this.getState();
 			expect(state.adjustments).toHaveLength(n);
-		}).toPass({ timeout: 10_000, intervals: [200] });
+		}).toPass(Poll.action);
 	}
 
 	async expectGeometryLength(n: number): Promise<void> {
 		await expect(async () => {
 			const state = await this.getState();
 			expect(state.geometry).toHaveLength(n);
-		}).toPass({ timeout: 10_000, intervals: [200] });
+		}).toPass(Poll.action);
 	}
 
 	async expectUndoRedo(canUndo: boolean, canRedo: boolean): Promise<void> {
@@ -282,35 +214,35 @@ class EditorHarness {
 			const state = await this.getState();
 			expect(state.canUndo).toBe(canUndo);
 			expect(state.canRedo).toBe(canRedo);
-		}).toPass({ timeout: 10_000, intervals: [200] });
+		}).toPass(Poll.action);
 	}
 
 	async expectAtLeaf(isAtLeaf: boolean): Promise<void> {
 		await expect(async () => {
 			const state = await this.getState();
 			expect(state.isAtLeaf).toBe(isAtLeaf);
-		}).toPass({ timeout: 10_000, intervals: [200] });
+		}).toPass(Poll.action);
 	}
 
 	async expectSourcePath(path: string): Promise<void> {
 		await expect(async () => {
 			const state = await this.getState();
 			expect(state.source.entries[0]?.path).toContain(path);
-		}).toPass({ timeout: 10_000, intervals: [200] });
+		}).toPass(Poll.action);
 	}
 
 	async expectZoneExists(kind: string): Promise<void> {
 		await expect(async () => {
 			const state = await this.getState();
 			expect(state.zones.some((z) => z.kind === kind)).toBe(true);
-		}).toPass({ timeout: 10_000, intervals: [200] });
+		}).toPass(Poll.action);
 	}
 
 	async expectZoneNotExists(kind: string): Promise<void> {
 		await expect(async () => {
 			const state = await this.getState();
 			expect(state.zones.some((z) => z.kind === kind)).toBe(false);
-		}).toPass({ timeout: 10_000, intervals: [200] });
+		}).toPass(Poll.action);
 	}
 
 	async getCropParams(): Promise<{ x: number; y: number; width: number; height: number } | null> {
@@ -331,13 +263,13 @@ class EditorHarness {
 			const params = await this.getCropParams();
 			expect(params).toBeTruthy();
 			expect(params!.width / params!.height).toBeCloseTo(expected, precision);
-		}).toPass({ timeout: 15_000, intervals: [500] });
+		}).toPass(Poll.action);
 	}
 
 	async expectLogContains(substring: string): Promise<void> {
 		await expect(async () => {
 			expect(this.logs.some((t) => t.includes(substring))).toBe(true);
-		}).toPass({ timeout: 60_000, intervals: [500] });
+		}).toPass(Poll.heavy);
 	}
 
 	// ─── Export group helpers ─────────────────────────────────────
@@ -350,14 +282,14 @@ class EditorHarness {
 		await expect(async () => {
 			const state = await this.getState();
 			expect(state.exportGroups.length).toBeGreaterThan(0);
-		}).toPass({ timeout: 10_000, intervals: [200] });
+		}).toPass(Poll.action);
 	}
 
 	async expectExportGroupCount(n: number): Promise<void> {
 		await expect(async () => {
 			const state = await this.getState();
 			expect(state.exportGroups.length).toBe(n);
-		}).toPass({ timeout: 10_000, intervals: [200] });
+		}).toPass(Poll.action);
 	}
 
 	async expectExportGroupExists(encoderPluginId: string): Promise<void> {
@@ -369,14 +301,14 @@ class EditorHarness {
 				)
 			);
 			expect(found).toBe(true);
-		}).toPass({ timeout: 10_000, intervals: [200] });
+		}).toPass(Poll.action);
 	}
 
 	async expectGroupChildCount(groupIndex: number, count: number): Promise<void> {
 		await expect(async () => {
 			const state = await this.getState();
 			expect(state.exportGroups[groupIndex].children.length).toBe(count);
-		}).toPass({ timeout: 10_000, intervals: [200] });
+		}).toPass(Poll.action);
 	}
 
 	async expectGroupChildExists(groupIndex: number, childPluginId: string): Promise<void> {
@@ -384,7 +316,7 @@ class EditorHarness {
 			const state = await this.getState();
 			const group = state.exportGroups[groupIndex];
 			expect(group.children.some((c) => c.plugin_id === childPluginId)).toBe(true);
-		}).toPass({ timeout: 10_000, intervals: [200] });
+		}).toPass(Poll.action);
 	}
 }
 

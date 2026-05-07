@@ -4,18 +4,11 @@
  */
 import { test as base, expect } from './editor-fixture';
 import type { Page, Locator } from '@playwright/test';
+import type { EditorWindow } from './lib/types';
+import { requireBox } from './lib/helpers';
+import { Poll } from './lib/timeouts';
 
 export { expect };
-
-interface EditorWindow {
-	__editorState: {
-		adjustments: Array<{
-			id: string;
-			plugin_id: string;
-			params: Record<string, unknown>;
-		}>;
-	};
-}
 
 class UIHarness {
 	constructor(private page: Page) {}
@@ -39,8 +32,7 @@ class UIHarness {
 	async dragSlider(sliderLabel: string, targetRatio: number): Promise<void> {
 		const slider = this.page.getByTestId(`slider-${sliderLabel}`);
 		const track = slider.getByTestId('slider-track');
-		const box = await track.boundingBox();
-		if (!box) throw new Error(`Slider track for "${sliderLabel}" not found or not visible`);
+		const box = await requireBox(track, `slider track for "${sliderLabel}"`);
 
 		const startX = box.x + box.width * 0.5;
 		const startY = box.y + box.height / 2;
@@ -78,14 +70,19 @@ class UIHarness {
 
 		const options = this.page.getByTestId('popup-select-option');
 		const count = await options.count();
+		const available: string[] = [];
 		for (let i = 0; i < count; i++) {
 			const text = await options.nth(i).textContent();
+			available.push(text?.trim() ?? '');
 			if (text?.trim() === optionLabel) {
 				await options.nth(i).click();
 				return;
 			}
 		}
-		throw new Error(`Option "${optionLabel}" not found in dropdown`);
+		throw new Error(
+			`Option "${optionLabel}" not found in dropdown "${selectLabel}". ` +
+				`Available options: [${available.join(', ')}]`
+		);
 	}
 
 	// --- Deep assertions ---
@@ -126,7 +123,7 @@ class UIHarness {
 			const actualRatio = fillBox!.width / trackBox!.width;
 			expect(actualRatio).toBeGreaterThanOrEqual(expectedRatio - tolerance);
 			expect(actualRatio).toBeLessThanOrEqual(expectedRatio + tolerance);
-		}).toPass({ timeout: 5_000, intervals: [200] });
+		}).toPass(Poll.fast);
 	}
 
 	/** Read a specific param value from __editorState for a given pluginId + paramId */

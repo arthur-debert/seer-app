@@ -1,7 +1,6 @@
 import { test, expect } from './editor-fixture';
 
 test('canvas renders on page load', async ({ page, editor }) => {
-	test.skip(!!process.env.CI, 'requires GPU');
 	await editor.expectPipelineReady();
 	const canvas = page.locator('canvas');
 	await expect(canvas).toBeVisible();
@@ -19,53 +18,28 @@ test('pipeline is empty after load', async ({ editor }) => {
 	await editor.expectPipelineLength(0);
 });
 
-test('add Tone Curve adjustment', async ({ editor }) => {
-	await editor.addAdjustment('arami.tone-curve');
-	await editor.expectAdjustmentExists('arami.tone-curve');
-	await editor.expectPipelineLength(1);
-});
+const adjustmentDefaults = [
+	{ id: 'arami.tone-curve', params: {} },
+	{ id: 'arami.color-mixer', params: { saturation: { Float: 0 } } },
+	{ id: 'arami.white-balance', params: { temperature: { Float: 6500 }, tint: { Float: 0 } } },
+	{
+		id: 'arami.denoise',
+		params: { spatial_sigma: { Float: 1 }, range_sigma: { Float: 0.1 }, iterations: { Int: 1 } }
+	},
+	{
+		id: 'arami.sharpen',
+		params: { radius: { Float: 1 }, amount: { Float: 0 }, threshold: { Float: 0 } }
+	},
+	{ id: 'arami.clarity', params: { strength: { Float: 0 } } }
+] as const;
 
-test('add Color Mixer and verify params', async ({ editor }) => {
-	await editor.addAdjustment('arami.color-mixer');
-	await editor.expectAdjustmentExists('arami.color-mixer');
-	await editor.expectAdjustmentParams('arami.color-mixer', {
-		saturation: { Float: 0 }
+for (const { id, params } of adjustmentDefaults) {
+	test(`add ${id.replace('arami.', '')} and verify default params`, async ({ editor }) => {
+		await editor.addAdjustment(id);
+		await editor.expectAdjustmentExists(id);
+		await editor.expectPipelineLength(1);
+		if (Object.keys(params).length > 0) {
+			await editor.expectAdjustmentParams(id, params as Record<string, unknown>);
+		}
 	});
-});
-
-test('add White Balance and verify params', async ({ editor }) => {
-	await editor.addAdjustment('arami.white-balance');
-	await editor.expectAdjustmentExists('arami.white-balance');
-	await editor.expectAdjustmentParams('arami.white-balance', {
-		temperature: { Float: 6500 },
-		tint: { Float: 0 }
-	});
-});
-
-test('add Denoise and verify params', async ({ editor }) => {
-	await editor.addAdjustment('arami.denoise');
-	await editor.expectAdjustmentExists('arami.denoise');
-	await editor.expectAdjustmentParams('arami.denoise', {
-		spatial_sigma: { Float: 1 },
-		range_sigma: { Float: 0.1 },
-		iterations: { Int: 1 }
-	});
-});
-
-test('add Sharpen and verify params', async ({ editor }) => {
-	await editor.addAdjustment('arami.sharpen');
-	await editor.expectAdjustmentExists('arami.sharpen');
-	await editor.expectAdjustmentParams('arami.sharpen', {
-		radius: { Float: 1 },
-		amount: { Float: 0 },
-		threshold: { Float: 0 }
-	});
-});
-
-test('add Clarity and verify params', async ({ editor }) => {
-	await editor.addAdjustment('arami.clarity');
-	await editor.expectAdjustmentExists('arami.clarity');
-	await editor.expectAdjustmentParams('arami.clarity', {
-		strength: { Float: 0 }
-	});
-});
+}

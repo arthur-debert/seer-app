@@ -2,6 +2,7 @@
  * UI interaction E2E tests — verify actual DOM interactions with editor widgets.
  */
 import { test, expect } from './ui-interaction-fixture';
+import { Poll } from './lib/timeouts';
 
 test.describe('Slider interaction', () => {
 	test('drag slider changes param value', async ({ editor, ui }) => {
@@ -65,7 +66,7 @@ test.describe('End-to-end editing flow', () => {
 		await expect(async () => {
 			const count = await curveTriggers.count();
 			expect(count).toBeGreaterThanOrEqual(4);
-		}).toPass({ timeout: 10_000, intervals: [200] });
+		}).toPass(Poll.action);
 	});
 
 	test('add white balance and drag slider', async ({ editor, ui }) => {

@@ -1,4 +1,5 @@
 import { test, expect } from './editor-fixture';
+import { Poll } from './lib/timeouts';
 
 /**
  * E2E tests for the Crop geometry node and canvas overlay system.
@@ -46,7 +47,7 @@ test.describe('Crop geometry', () => {
 			const params = await editor.getCropParams();
 			expect(params).toBeTruthy();
 			expect(params!.height / params!.width).toBeCloseTo(4 / 3, 1);
-		}).toPass({ timeout: 15_000, intervals: [500] });
+		}).toPass(Poll.action);
 	});
 
 	test('thirds toggle shows and hides grid lines', async ({ page, editor }) => {
@@ -85,7 +86,7 @@ test.describe('Crop geometry', () => {
 			await editor.undo();
 			const state = await editor.getState();
 			expect(state.geometry.some((g) => g.plugin_id === 'arami.crop')).toBe(false);
-		}).toPass({ timeout: 15_000, intervals: [500] });
+		}).toPass(Poll.action);
 
 		await expect(page.locator('mask#crop-mask')).not.toBeAttached({ timeout: 5_000 });
 
@@ -93,7 +94,7 @@ test.describe('Crop geometry', () => {
 			await editor.redo();
 			const state = await editor.getState();
 			expect(state.geometry.some((g) => g.plugin_id === 'arami.crop')).toBe(true);
-		}).toPass({ timeout: 15_000, intervals: [500] });
+		}).toPass(Poll.action);
 		await expect(page.locator('mask#crop-mask')).toBeAttached({ timeout: 5_000 });
 	});
 

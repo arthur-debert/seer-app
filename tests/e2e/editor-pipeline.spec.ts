@@ -16,29 +16,43 @@ test('full pipeline: load → BW → segmentation → render', async ({ page, ed
 
 	test.setTimeout(90_000);
 
-	// 1. Canvas renders
-	const canvas = page.locator('canvas');
-	await expect(canvas).toBeVisible();
-	const box = await canvas.boundingBox();
-	expect(box).toBeTruthy();
-	expect(box!.width).toBeGreaterThan(0);
+	await test.step('verify canvas renders', async () => {
+		const canvas = page.locator('canvas');
+		await expect(canvas).toBeVisible();
+		const box = await canvas.boundingBox();
+		expect(box).toBeTruthy();
+		expect(box!.width).toBeGreaterThan(0);
+	});
 
-	// 2. Pipeline is ready (no adjustments yet, just source image)
-	await editor.expectNoErrors();
+	await test.step('verify pipeline is clean', async () => {
+		await editor.expectNoErrors();
+	});
 
-	// 3. Apply the Adaptive BW combo: monochrome + CLAHE + tone curve + semantic zone
-	await editor.addAdjustment('arami.monochrome');
-	await editor.addAdjustment('arami.clahe');
-	await editor.addAdjustment('arami.tone-curve');
-	await editor.addZone('arami.zone.segmentation');
+	await test.step('build adaptive BW pipeline', async () => {
+		await editor.addAdjustment('arami.monochrome');
+		await editor.addAdjustment('arami.clahe');
+		await editor.addAdjustment('arami.tone-curve');
+		await editor.addZone('arami.zone.segmentation');
+	});
 
-	// 4. Wait for segmentation to complete
-	await editor.expectLogContains('[editor] segmentation complete');
+	await test.step('verify pipeline structure', async () => {
+		const state = await editor.getState();
+		expect(state.adjustments).toHaveLength(3);
+		expect(state.adjustments.map((a) => a.plugin_id)).toEqual([
+			'arami.monochrome',
+			'arami.clahe',
+			'arami.tone-curve'
+		]);
+		expect(state.zones.length).toBeGreaterThan(0);
+	});
 
-	// 5. Verify structured logs confirm each pipeline stage ran
-	await editor.expectLogContains('[editor] edit graph created');
-	await editor.expectLogContains('[editor] pipeline evaluated');
+	await test.step('wait for segmentation', async () => {
+		await editor.expectLogContains('[editor] segmentation complete');
+	});
 
-	// 6. "Analyzing image..." status bar must be gone
-	await expect(page.getByText('Analyzing image')).not.toBeVisible({ timeout: 2_000 });
+	await test.step('verify pipeline stages completed', async () => {
+		await editor.expectLogContains('[editor] edit graph created');
+		await editor.expectLogContains('[editor] pipeline evaluated');
+		await expect(page.getByText('Analyzing image')).not.toBeVisible({ timeout: 2_000 });
+	});
 });

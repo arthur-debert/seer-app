@@ -1,4 +1,5 @@
 import { test, expect } from './editor-fixture';
+import { Poll } from './lib/timeouts';
 
 test.describe('Editor History Panel', () => {
 	test('history shows Open Image after load', async ({ page, editor }) => {
@@ -37,64 +38,69 @@ test.describe('Editor History Panel', () => {
 		page,
 		editor
 	}) => {
-		await editor.openHistory();
-		await editor.addAdjustment('arami.white-balance');
-		await editor.addAdjustment('arami.tone-curve');
+		await test.step('set up pipeline with two adjustments', async () => {
+			await editor.openHistory();
+			await editor.addAdjustment('arami.white-balance');
+			await editor.addAdjustment('arami.tone-curve');
+		});
 
-		// Click "Open Image" entry to jump to root
-		await page.getByText('Open Image').click();
-		await editor.expectAdjustmentNotExists('arami.white-balance');
-		await editor.expectPipelineLength(0);
+		await test.step('jump to root via history click', async () => {
+			await page.getByText('Open Image').click();
+			await editor.expectAdjustmentNotExists('arami.white-balance');
+			await editor.expectPipelineLength(0);
+		});
 
-		// Forward entries should still be visible in history
-		await expect(page.getByText('Add White Balance')).toBeVisible();
+		await test.step('verify forward entries remain visible', async () => {
+			await expect(page.getByText('Add White Balance')).toBeVisible();
+			await expect(async () => {
+				const state = await editor.getState();
+				expect(state.fullPath.length).toBeGreaterThanOrEqual(3);
+			}).toPass(Poll.fast);
+			await editor.expectAtLeaf(false);
+		});
 
-		// State confirms we're not at the leaf and forward history exists
-		await expect(async () => {
-			const state = await editor.getState();
-			expect(state.fullPath.length).toBeGreaterThanOrEqual(3);
-		}).toPass({ timeout: 5_000, intervals: [200] });
-		await editor.expectAtLeaf(false);
-
-		// Click forward entry to jump back to leaf
-		await page.getByText('Add Tone Curve').click();
-		await editor.expectAdjustmentExists('arami.tone-curve');
-		await editor.expectAtLeaf(true);
+		await test.step('jump forward to leaf', async () => {
+			await page.getByText('Add Tone Curve').click();
+			await editor.expectAdjustmentExists('arami.tone-curve');
+			await editor.expectAtLeaf(true);
+		});
 	});
 
 	test('editing at non-leaf shows confirm dialog', async ({ page, editor }) => {
-		await editor.openHistory();
-		await editor.addAdjustment('arami.white-balance');
+		await test.step('set up and navigate to non-leaf', async () => {
+			await editor.openHistory();
+			await editor.addAdjustment('arami.white-balance');
+			await page.getByText('Open Image').click();
+			await editor.expectAdjustmentNotExists('arami.white-balance');
+		});
 
-		// Jump back to root
-		await page.getByText('Open Image').click();
-		await editor.expectAdjustmentNotExists('arami.white-balance');
+		await test.step('dismiss dialog cancels the action', async () => {
+			page.once('dialog', (dialog) => dialog.dismiss());
+			await page.evaluate(() =>
+				(
+					window as unknown as { __editorActions: { addAdjustment: (id: string) => void } }
+				).__editorActions.addAdjustment('arami.tone-curve')
+			);
+			await expect(async () => {
+				const state = await editor.getState();
+				expect(state.adjustments.some((a) => a.plugin_id === 'arami.tone-curve')).toBe(false);
+			}).toPass(Poll.fast);
+		});
 
-		// Dismiss the confirm dialog to cancel
-		page.once('dialog', (dialog) => dialog.dismiss());
-		await page.evaluate(() =>
-			(
-				window as unknown as { __editorActions: { addAdjustment: (id: string) => void } }
-			).__editorActions.addAdjustment('arami.tone-curve')
-		);
-		// ToneCurve should NOT appear (dialog was dismissed)
-		await expect(async () => {
+		await test.step('accept dialog applies the action', async () => {
+			page.once('dialog', (dialog) => dialog.accept());
+			await page.evaluate(() =>
+				(
+					window as unknown as { __editorActions: { addAdjustment: (id: string) => void } }
+				).__editorActions.addAdjustment('arami.tone-curve')
+			);
+			await editor.expectAdjustmentExists('arami.tone-curve');
+		});
+
+		await test.step('forward history is pruned', async () => {
 			const state = await editor.getState();
-			expect(state.adjustments.some((a) => a.plugin_id === 'arami.tone-curve')).toBe(false);
-		}).toPass({ timeout: 2_000, intervals: [200] });
-
-		// Accept the confirm dialog
-		page.once('dialog', (dialog) => dialog.accept());
-		await page.evaluate(() =>
-			(
-				window as unknown as { __editorActions: { addAdjustment: (id: string) => void } }
-			).__editorActions.addAdjustment('arami.tone-curve')
-		);
-		await editor.expectAdjustmentExists('arami.tone-curve');
-
-		// Forward history (WhiteBalance) should be gone
-		const state = await editor.getState();
-		expect(state.isAtLeaf).toBe(true);
+			expect(state.isAtLeaf).toBe(true);
+		});
 	});
 
 	test('canUndo and canRedo state', async ({ editor }) => {

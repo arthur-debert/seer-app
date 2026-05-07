@@ -62,6 +62,34 @@ PR bodies always include `Closes #NN` so the issue closes on merge.
 - Never commit with failing tests
 - If tests fail after your changes, fix them before proceeding
 
+### E2E Testing Conventions
+
+E2E tests live in `tests/e2e/`. Shared infrastructure lives in `tests/e2e/lib/`.
+
+**Timeouts:** Never use hardcoded timeout numbers. Import from `lib/timeouts.ts`:
+
+- `Poll.fast` (5s) — DOM visibility, simple state checks
+- `Poll.action` (10s) — state mutations after user actions
+- `Poll.pipeline` (30s) — WASM pipeline init, image load
+- `Poll.heavy` (60s) — GPU rendering, segmentation
+- All use progressive backoff intervals, not flat polling
+
+**Assertions:** Assert on application state via `__editorState` / `__editorActions`, not DOM structure. Use harness methods (`editor.expectAdjustmentExists()`, `editor.expectPipelineLength()`) rather than raw `page.evaluate()`. Never use `waitForTimeout`.
+
+**Fixtures:** Import `test` from the appropriate fixture, not from `@playwright/test`:
+
+- `base-fixture` — console error capture + diagnostics
+- `editor-fixture` — EditorHarness (state reads, actions, assertions)
+- `ui-interaction-fixture` — UIHarness (slider drag, popup, radial menu)
+- `viewer-fixture` — ViewerHarness (zoom, pan, canvas)
+- `mirror-fixture` — MirrorHarness (dual-viewer sync)
+
+**Multi-step tests:** Wrap logical phases in `test.step()` for readable HTML reports.
+
+**Helpers:** Use `requireBox()` instead of `(await locator.boundingBox())!`. Use `getComputedStyles()` / `getBoxBySelector()` / `px()` from `lib/helpers.ts` instead of inline helpers.
+
+**Test bridge:** The app exposes `window.__testBridge` in DEV mode with readiness signals and event logging. See `src/lib/test-bridge.ts`.
+
 ## Code Review Criteria
 
 When reviewing code (as reviewer or self-check):
